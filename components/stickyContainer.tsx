@@ -33,6 +33,10 @@ const sspDescriptions = sspImpactsData.map((impact) => ({
 export function StickyContainer() {
   return (
     <div className="w-full">
+      <div className="flex w-full max-w-5xl items-center justify-between mx-auto mt-20">
+        <h1 className="font-bold text-2xl">What kind of future are we facing?</h1>
+        <h1 className="font-bold text-2xl">What are the impacts on the globe?</h1>
+      </div>
       <StickyScroll content={sspDescriptions} />
     </div>
   );

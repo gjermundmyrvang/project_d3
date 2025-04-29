@@ -19,7 +19,7 @@ export const GlobalTempLatest = () => {
     const [cursorPosition, setCursorPosition] = useState<number | null>(null);
 
     const { width, height } = useDimensions(chartRef);
-    console.log("Width and height:", {width, height})
+    console.log("Width and height currenttemps:", {width, height})
   return (
     <div className="grid grid-cols-[1fr_3fr_1fr] items-center gap-12 justify-center h-[20vh] border-b border-gray-200">
       <div className='flex items-center h-full w-full border-r border-gray-200'>
@@ -56,7 +56,6 @@ const GlobalTempChart = ({width, height, data, cursorPosition,
 
   // Y axis (temperature)
   const [yMin, yMax] = d3.extent(data, (d) => d.noSmoothing);
-  console.log("Min and max temp: ", {yMin, yMax})
   const yScale = useMemo(() => {
     return d3
       .scaleLinear()
@@ -66,8 +65,6 @@ const GlobalTempChart = ({width, height, data, cursorPosition,
 
   // X axis (years)
   const [xMin, xMax] = d3.extent(data, (d) => d.year);
-  console.log("Min and max year: ", {xMin, xMax})
-
   const xScale = useMemo(() => {
     return d3
       .scaleLinear()
@@ -104,10 +101,10 @@ const GlobalTempChart = ({width, height, data, cursorPosition,
       .line<TemperatureData>()
       .x((d) => xScale(d.year))
       .y((d) => yScale(d.noSmoothing))
-      const linePath = lineBuilder(data);
-      if (!linePath) {
-        return null;
-      }
+  
+    const lastTenYearsData = data.slice(-10); 
+    const fullLinePath = lineBuilder(data);
+    const lastTenPath = lineBuilder(lastTenYearsData);
 
     const getClosestPoint = (cursorPixelPosition: number) => {
       const x = xScale.invert(cursorPixelPosition);
@@ -144,13 +141,25 @@ const GlobalTempChart = ({width, height, data, cursorPosition,
           height={boundsHeight}
           transform={`translate(${[MARGIN.left, MARGIN.top].join(",")})`}
         >
-          <path
-            d={linePath}
-            opacity={1}
-            stroke="#000"
-            fill="none"
-            strokeWidth={2}
-          />
+          {fullLinePath && (
+            <path
+              d={fullLinePath}
+              stroke="#000"
+              fill="none"
+              strokeWidth={2}
+              opacity={0.7}
+            />
+          )}
+
+          {/* Last 10 years */}
+          {lastTenPath && (
+            <path
+              d={lastTenPath}
+              stroke="#e63946" // red or attention-grabbing color
+              fill="none"
+              strokeWidth={4}
+            />
+          )}
           {cursorPosition && (
             <Cursor
               x={cursorPosition}
