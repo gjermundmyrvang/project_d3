@@ -3,7 +3,12 @@ import React from "react";
 import { StickyScroll } from "./ui/sticky-scroll-reveal";
 import { ClimateImpact, sspImpacts } from "@/data/sspdata";
 
-const sspImpactsData: ClimateImpact[] = sspImpacts
+const sspImpactsData: ClimateImpact[] = sspImpacts;
+
+const getDiff = (temp: number) => {
+  const now = 1.29;
+  return (((temp - now) / now) * 100).toFixed(0);
+};
 
 const sspDescriptions = sspImpactsData.map((impact) => ({
   ssp: impact.id,
@@ -13,8 +18,12 @@ const sspDescriptions = sspImpactsData.map((impact) => ({
     <div className="flex flex-col p-6 w-full">
       <div className="mb-6">
         <p className="text-lg font-semibold text-gray-800">
-          Warming Level:{" "}
+          Global Temp Threshold:{" "}
           <span className="text-xl">{impact.warmingLevelC} °C</span>
+        </p>
+        <p>
+          {getDiff(impact.warmingLevelC)} % warmer than today's global
+          temperature
         </p>
       </div>
 
@@ -34,8 +43,8 @@ export function StickyContainer() {
   return (
     <div className="w-full">
       <div className="flex w-full max-w-5xl items-center justify-between mx-auto mt-20">
-        <h1 className="font-bold text-2xl">What kind of future are we facing?</h1>
-        <h1 className="font-bold text-2xl">What are the impacts on the globe?</h1>
+        <h1 className="font-bold text-2xl">What will the future look like?</h1>
+        <h1 className="font-bold text-2xl">What are the impacts?</h1>
       </div>
       <StickyScroll content={sspDescriptions} />
     </div>

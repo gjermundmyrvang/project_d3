@@ -18,6 +18,20 @@ export interface SspDescription {
     description: string;
   }
 
+export interface SSPFactors {
+  fossilFuelUse: number;        // 0 (low) to 1 (high)
+  cooperation: number;          // 0 (strong) to 1 (weak)
+  techDevelopment: number;      // 0 (slow) to 1 (fast)
+  sustainabilityFocus: number;  // 0 (low) to 1 (high)
+  equity: number;               // 0 (low) to 1 (high)
+};
+
+export interface SSPQuestion {
+  qid: keyof SSPFactors;
+  question: string;
+  labels: string[]
+}
+
 export const sspScenarios = [
     {
       scenarioActivity: "SSP1-1.9 (Sustainability)",
@@ -144,5 +158,84 @@ export const sspImpacts: ClimateImpact[] = [
         "Major strain on global economy and migration systems",
       ],
       description: "Growing inequality. Rich countries adapt and mitigate; poor regions struggle. Advanced tech is unevenly distributed. Moderate-to-high emissions. Rapid economic growth, energy-intensive lifestyles, and heavy use of fossil fuels. Technological innovation is high, but emissions skyrocket.",
+    },
+  ];
+
+  export const sspProfiles: Record<string, SSPFactors> = {
+    "SSP1-2.6": {
+      fossilFuelUse: 0.1,
+      cooperation: 0.1,
+      techDevelopment: 0.6,
+      sustainabilityFocus: 1.0,
+      equity: 1.0,
+    },
+    "SSP2-4.5": {
+      fossilFuelUse: 0.5,
+      cooperation: 0.5,
+      techDevelopment: 0.5,
+      sustainabilityFocus: 0.4,
+      equity: 0.5,
+    },
+    "SSP3-7.0": {
+      fossilFuelUse: 0.9,
+      cooperation: 0.9,
+      techDevelopment: 0.3,
+      sustainabilityFocus: 0.1,
+      equity: 0.2,
+    },
+    "SSP5-8.5": {
+      fossilFuelUse: 1.0,
+      cooperation: 0.3,
+      techDevelopment: 1.0,
+      sustainabilityFocus: 0.1,
+      equity: 0.2,
+    }
+  };
+
+  export const sspQuestions: SSPQuestion[] = [
+    {
+      qid: "fossilFuelUse",
+      question: "How reliant will the world be on fossil fuels in the future?",
+      labels: [
+        "Widespread clean energy adoption",
+        "Balanced mix of fossil and renewables",
+        "Heavy fossil fuel dependence"
+      ]
+    },
+    {
+      qid: "cooperation",
+      question: "How strong will international cooperation on climate and sustainability be?",
+      labels: [
+        "Strong global collaboration",
+        "Regional partnerships",
+        "National self-interest dominates",
+      ]
+    },
+    {
+      qid: "sustainabilityFocus",
+      question: "What will be prioritized in economic growth?",
+      labels: [
+        "Sustainability",
+        "Balanced",
+        "Maximum economic output"
+      ]
+    },
+    {
+      qid: "techDevelopment",
+      question: "How rapidly will green and climate technology advance?",
+      labels: [
+        "Slow",
+        "Moderate",
+        "Rapid innovation"
+      ]
+    },
+    {
+      qid: "equity",
+      question: "How much global inequality will exist?",
+      labels: [
+        "Low (more equity and fair development)",
+        "Medium",
+        "High (unequal development paths)"
+      ]
     },
   ];
