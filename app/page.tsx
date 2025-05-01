@@ -1,4 +1,5 @@
 import { AnomalyComponent } from "@/components/Anomalies";
+import { ContributionMap } from "@/components/ContributionMap";
 import { GlobalTempLatest } from "@/components/currentTemp";
 import { StickyContainer } from "@/components/stickyContainer";
 import { UserControl } from "@/components/UserControl";
@@ -15,6 +16,7 @@ export default function Home() {
           <AnomalyComponent />
         </div>
       </div>
+      <ContributionMap />
       <SeaLevel />
     </div>
   );
