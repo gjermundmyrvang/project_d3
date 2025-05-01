@@ -4,6 +4,7 @@ import { GlobalTempLatest } from "@/components/currentTemp";
 import { StickyContainer } from "@/components/stickyContainer";
 import { UserControl } from "@/components/UserControl";
 import { SeaLevel } from "@/components/SeaLevel";
+import { WelcomeScreen } from "@/components/WelcomeScreen";
 
 export default function Home() {  
   return (
@@ -11,6 +12,7 @@ export default function Home() {
       <GlobalTempLatest />
       <StickyContainer />
       <UserControl />
+      <WelcomeScreen />
       <div className="relative h-[150vh]">
         <div className="sticky top-0">
           <AnomalyComponent />
