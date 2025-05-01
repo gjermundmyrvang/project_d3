@@ -2,6 +2,7 @@ import { AnomalyComponent } from "@/components/Anomalies";
 import { GlobalTempLatest } from "@/components/currentTemp";
 import { StickyContainer } from "@/components/stickyContainer";
 import { UserControl } from "@/components/UserControl";
+import { SeaLevel } from "@/components/SeaLevel";
 
 export default function Home() {  
   return (
@@ -14,6 +15,7 @@ export default function Home() {
           <AnomalyComponent />
         </div>
       </div>
+      <SeaLevel />
     </div>
   );
 }
