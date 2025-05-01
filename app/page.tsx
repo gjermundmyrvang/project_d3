@@ -1,3 +1,4 @@
+import { AnomalyComponent } from "@/components/Anomalies";
 import { GlobalTempLatest } from "@/components/currentTemp";
 import { StickyContainer } from "@/components/stickyContainer";
 import { UserControl } from "@/components/UserControl";
@@ -8,6 +9,11 @@ export default function Home() {
       <GlobalTempLatest />
       <StickyContainer />
       <UserControl />
+      <div className="relative h-[150vh]">
+        <div className="sticky top-0">
+          <AnomalyComponent />
+        </div>
+      </div>
     </div>
   );
 }
