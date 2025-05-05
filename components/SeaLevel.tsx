@@ -49,18 +49,12 @@ export const SeaLevel = () => {
     });
   };
   return (
-    <div className="relative h-[150vh] bg-slate-950">
-      <div className="sticky top-0">
-        <div className="w-full text-white">
-          <div className="w-full max-w-7xl justify-center items-center mx-auto  relative">
-            <div className="w-full h-[60rem] items-start z-10" ref={vizRef}>
-              {data && (
-                <SeaLevelGraph width={width} height={height} data={data} />
-              )}
-            </div>
-            <Description />
-          </div>
+    <div className="w-full text-white">
+      <div className="w-full max-w-7xl justify-center items-center mx-auto  relative">
+        <div className="w-full h-[60rem] items-start z-10" ref={vizRef}>
+          {data && <SeaLevelGraph width={width} height={height} data={data} />}
         </div>
+        <Description />
       </div>
     </div>
   );
