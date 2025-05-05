@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { useMotionValueEvent, useScroll, motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import { motion, useMotionValueEvent, useScroll } from "motion/react";
+import React, { useRef } from "react";
 
 export const StickyScroll = ({
   content,
@@ -18,10 +18,7 @@ export const StickyScroll = ({
   const [activeCard, setActiveCard] = React.useState(0);
   const ref = useRef<any>(null);
   const { scrollYProgress } = useScroll({
-    // uncomment line 22 and comment line 23 if you DONT want the overflow container and want to have it change on the entire page scroll
-    // target: ref
     container: ref,
-    // offset: ["start start", "end start"],
   });
   const cardLength = content.length;
 
@@ -49,22 +46,22 @@ export const StickyScroll = ({
 
   return (
     <motion.div
-      animate={{
+      /* animate={{
         backgroundColor: backgroundColors[activeCard % backgroundColors.length],
-      }}
+      }} */
       className="relative flex h-[40rem] justify-center space-x-10 overflow-y-auto p-10 w-full"
       ref={ref}
     >
-      <div className="div relative flex items-start">
+      <div className="div relative flex">
         <div className="max-w-5xl w-full">
           {content.map((item, index) => (
-            <div key={item.title + index} className="my-20">
+            <div key={item.title + index} className="my-10">
               <motion.h2
                 initial={{
                   opacity: 0,
                 }}
                 animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
+                  opacity: activeCard === index ? 1 : 0.2,
                 }}
                 className="text-2xl font-bold"
               >
@@ -75,7 +72,7 @@ export const StickyScroll = ({
                   opacity: 0,
                 }}
                 animate={{
-                  opacity: activeCard === index ? 1 : 0.3,
+                  opacity: activeCard === index ? 1 : 0.2,
                 }}
                 className="text-kg mt-10 max-w-sm"
               >
@@ -83,12 +80,12 @@ export const StickyScroll = ({
               </motion.p>
             </div>
           ))}
-          <div className="h-40" />
+          <div className="h-60" />
         </div>
       </div>
       <div
         className={cn(
-          "sticky top-20 hidden h-[30rem] w-[40rem] overflow-hidden border-1 border-gray-100 lg:block",
+          "sticky top-10 hidden h-[30rem] w-[40rem] overflow-hidden lg:block",
           contentClassName,
         )}
       >

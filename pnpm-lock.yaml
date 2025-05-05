@@ -14,12 +14,18 @@ importers:
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
+      '@types/geojson':
+        specifier: ^7946.0.16
+        version: 7946.0.16
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
       d3:
         specifier: ^7.9.0
         version: 7.9.0
+      d3-geo:
+        specifier: ^3.1.1
+        version: 3.1.1
       motion:
         specifier: ^12.9.2
         version: 12.9.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

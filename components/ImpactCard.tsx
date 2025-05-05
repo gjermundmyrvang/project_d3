@@ -18,7 +18,7 @@ export const ImpactCard = ({
       {/* Warming Level and SSP Range */}
       <div className="mb-4">
         <p className="text-xl text-gray-700">
-          <span className="font-mono text-lg text-gray-500">Warming Level:</span> {warmingLevelC}°C
+          <span className="font-mono text-lg text-gray-500">Global Temp Threshold:</span> {warmingLevelC}°C
         </p>
         <p className="text-xl text-gray-700">
           <span className="font-mono text-lg text-gray-500">SSP Range:</span> {sspRange}
