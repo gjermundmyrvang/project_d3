@@ -1,6 +1,7 @@
 import { AnomalyComponent } from "@/components/Anomalies";
 import { ContributionMap } from "@/components/ContributionMap";
 import { GlobalTempLatest } from "@/components/currentTemp";
+import { References } from "@/components/References";
 import { RiverComponent } from "@/components/RiverComponent";
 import { SeaLevel } from "@/components/SeaLevel";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
@@ -22,6 +23,7 @@ export default function Home() {
       <ContributionMap />
       <RiverComponent />
       <SeaLevel />
+      <References />
     </div>
   );
 }
