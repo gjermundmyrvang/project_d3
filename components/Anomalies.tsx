@@ -33,11 +33,6 @@ type TooltipProps = {
   mean: number;
 };
 
-const FILTERS = {
-  BY_YEAR: "year",
-  BY_MONTH: "month",
-};
-
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
 export const AnomalyComponent = () => {
@@ -45,8 +40,6 @@ export const AnomalyComponent = () => {
   const { width, height } = useDimensions(vizRef);
   const [byYearData, setByYearData] = useState<YearDataProps[] | null>(null);
   const [data, setData] = useState<DataProps[] | null>(null);
-  const [filter, setFilter] = useState(FILTERS.BY_YEAR);
-  const axesRef = useRef(null);
 
   useEffect(() => {
     readData();
