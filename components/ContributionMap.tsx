@@ -55,44 +55,40 @@ export const ContributionMap = () => {
   }, [data]);
 
   return (
-    <div className="relative h-[150vh] bg-black">
-      <div className="sticky top-0">
-        <div className="pt-20 w-full min-h-[75rem] relative" ref={vizRef}>
-          {data.length > 0 && (
-            <div>
-              <YearComponent
-                years={uniqueYears}
-                current={selectedYear}
-                setSelected={setSelectedYear}
+    <div className="pt-20 w-full min-h-[75rem] relative" ref={vizRef}>
+      {data.length > 0 && (
+        <div>
+          <YearComponent
+            years={uniqueYears}
+            current={selectedYear}
+            setSelected={setSelectedYear}
+          />
+          <FilterSwitch
+            current={filter}
+            choices={Object.values(FILTERS)}
+            setFilter={setFilter}
+          />
+          {filter === FILTERS.CLUSTER ? (
+            <ClusterComponent
+              width={width}
+              height={height}
+              data={data}
+              selectedYear={selectedYear}
+            />
+          ) : (
+            <>
+              <MapComponent
+                width={width}
+                height={height}
+                mapdata={geodata}
+                data={data}
+                selectedYear={selectedYear}
               />
-              <FilterSwitch
-                current={filter}
-                choices={Object.values(FILTERS)}
-                setFilter={setFilter}
-              />
-              {filter === FILTERS.CLUSTER ? (
-                <ClusterComponent
-                  width={width}
-                  height={height}
-                  data={data}
-                  selectedYear={selectedYear}
-                />
-              ) : (
-                <>
-                  <MapComponent
-                    width={width}
-                    height={height}
-                    mapdata={geodata}
-                    data={data}
-                    selectedYear={selectedYear}
-                  />
-                  <Legend scale={colorScale} />
-                </>
-              )}
-            </div>
+              <Legend scale={colorScale} />
+            </>
           )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

@@ -38,7 +38,7 @@ type ClusterProps = {
 
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
-const COLORS = [
+const COLORS2 = [
   "#e0ac2b",
   "#6689c6",
   "#a4c969",
@@ -46,6 +46,16 @@ const COLORS = [
   "#9a6fb0",
   "#a53253",
   "#7f7f7f",
+];
+
+const COLORS = [
+  "#00FFFF", // Cyan
+  "#FF6EC7", // Neon pink
+  "#39FF14", // Bright green
+  "#FFD700", // Gold
+  "#FF4500", // Orange red
+  "#7DF9FF", // Electric blue
+  "#DA70D6", // Orchid
 ];
 
 const assignChildren = (
@@ -263,8 +273,8 @@ const Description = () => {
         Contributions To Global Warming
       </h2>
       <p className="text-gray-100 leading-relaxed">
-        Just a small number of countries contribute increasing the global mean
-        temperature as much — or more — than all the others combined.
+        Just a few countries have contributed to global warming as much as, or
+        even more than, all other countries combined.
       </p>
     </div>
   );
