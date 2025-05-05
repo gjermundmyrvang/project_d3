@@ -175,7 +175,7 @@ export const ClusterComponent = ({
       .style("font-size", "12px")
       .style("font-weight", "bold")
       .style("opacity", 0)
-      .text((d) => `${d.data.country} - ${d.data.value.toFixed(2)}`)
+      .text((d) => `${d.data.country} - ${d.data.value.toFixed(2)} %`)
       .transition()
       .duration(2200)
       .style("opacity", 1);
@@ -251,7 +251,7 @@ const Tooltip = ({ x, y, data }: TooltipProps) => {
       style={{ left: x - 80, top: y - 25 }}
     >
       <p className="text-md">{data.country}</p>
-      <p className="text-sm">Contribution: {data.value.toFixed(2)}</p>
+      <p className="text-sm">Contribution: {data.value.toFixed(2)} %</p>
     </div>
   );
 };

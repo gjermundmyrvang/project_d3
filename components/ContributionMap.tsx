@@ -230,7 +230,7 @@ const Tooltip = ({ x, y, shape, value }: TooltipProps) => {
       style={{ left: x - 80, top: y - 25 }}
     >
       <p className="text-md">{name}:</p>
-      <p className="text-sm">Countribution: {contribution}</p>
+      <p className="text-sm">Countribution: {contribution} %</p>
     </div>
   );
 };
@@ -253,9 +253,9 @@ const Legend = ({ scale }: LegendProps) => {
           <div key={i} className="flex items-center gap-2">
             <div className="w-6 h-3" style={{ backgroundColor: color }} />
             {i === colors.length - 1 ? (
-              <span>{`${min.toFixed(2)} – > ${max.toFixed(2)}`}</span>
+              <span>{`${min.toFixed(2)} – >= ${max.toFixed(2)} %`}</span>
             ) : (
-              <span>{`${min.toFixed(2)} – ${max.toFixed(2)}`}</span>
+              <span>{`${min.toFixed(2)} – ${max.toFixed(2)} %`}</span>
             )}
           </div>
         );
