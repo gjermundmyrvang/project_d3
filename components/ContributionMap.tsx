@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import { Feature, FeatureCollection } from "geojson";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClusterComponent } from "./ClusterComponent";
+import { useInView } from "@/lib/useInView";
 
 type DataProps = {
   country: string;
@@ -24,7 +25,7 @@ export const ContributionMap = () => {
   const vizRef = useRef(null);
   const { width, height } = useDimensions(vizRef);
   const [data, setData] = useState<DataProps[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number>(1940);
+  const [selectedYear, setSelectedYear] = useState<number>(2023);
   const [filter, setFilter] = useState<string>(FILTERS.CLUSTER);
 
   useEffect(() => {
@@ -55,8 +56,11 @@ export const ContributionMap = () => {
   }, [data]);
 
   return (
-    <div className="pt-20 w-full min-h-[75rem] relative" ref={vizRef}>
-      {data.length > 0 && (
+    <div
+      ref={vizRef}
+      className="w-full max-w-7xl min-h-[75rem] justify-center items-center mx-auto relative"
+    >
+      {data.length > 0 && vizRef && (
         <div>
           <YearComponent
             years={uniqueYears}
@@ -87,6 +91,7 @@ export const ContributionMap = () => {
               <Legend scale={colorScale} />
             </>
           )}
+          <Description />
         </div>
       )}
     </div>
@@ -152,11 +157,9 @@ const MapComponent = ({
       "#FF8C00",
     ];
     return d3.scaleQuantize<string>().domain([0, 1]).range(colors);
-  }, [data]);
+  }, []);
 
-  const projection = d3
-    .geoNaturalEarth1()
-    .fitSize([boundsWidth, boundsHeight], mapdata);
+  const projection = d3.geoNaturalEarth1().fitSize([width, height], mapdata);
 
   const geoPathGenerator = d3.geoPath().projection(projection);
 
@@ -187,15 +190,19 @@ const MapComponent = ({
       .on("mouseleave", () => {
         setTooltip(null);
       });
-  }, [mapdata, boundsWidth, boundsHeight, valueMap, colorScale]);
+  }, [
+    mapdata,
+    boundsWidth,
+    boundsHeight,
+    valueMap,
+    colorScale,
+    geoPathGenerator,
+  ]);
 
   return (
     <div className="relative">
       <svg width={width} height={height}>
-        <g
-          ref={chartRef}
-          transform={`translate(${MARGIN.left}, ${MARGIN.top})`}
-        />
+        <g ref={chartRef} transform={`translate(-100, ${MARGIN.top})`} />
       </svg>
 
       {tooltip && (
@@ -240,7 +247,7 @@ const Legend = ({ scale }: LegendProps) => {
   const colors = scale.range();
 
   return (
-    <div className="flex flex-col gap-2 text-white font-mono mt-4 absolute bottom-40 left-20">
+    <div className="flex flex-col gap-2 text-white font-mono mt-4 absolute bottom-40 left-0">
       {colors.map((color, i) => {
         const min = i === 0 ? scale.domain()[0] : thresholds[i - 1];
         const max = thresholds[i] ?? scale.domain()[1];
@@ -268,7 +275,7 @@ type FilterProps = {
 
 const FilterSwitch = ({ current, choices, setFilter }: FilterProps) => {
   return (
-    <div className="absolute top-12 left-20 font-mono">
+    <div className="absolute top-12 left-0 font-mono z-100">
       <div className="flex gap-2 bg-gray-800 rounded-xl p-1">
         {choices.map((choice) => (
           <button
@@ -285,6 +292,20 @@ const FilterSwitch = ({ current, choices, setFilter }: FilterProps) => {
           </button>
         ))}
       </div>
+    </div>
+  );
+};
+
+const Description = () => {
+  return (
+    <div className="flex flex-col w-full max-w-4xl font-mono absolute top-20 left-0">
+      <h2 className="mt-5 text-2xl font-semibold text-white mb-2">
+        Contributions To Global Warming
+      </h2>
+      <p className="text-gray-100 leading-relaxed">
+        Just a few countries have contributed to global warming as much as, or
+        even more than, all other countries combined.
+      </p>
     </div>
   );
 };

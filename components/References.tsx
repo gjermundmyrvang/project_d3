@@ -2,7 +2,7 @@ import React from "react";
 
 export const References = () => {
   return (
-    <section className="max-w-7xl mx-auto px-4 py-12 font-sans text-sm text-slate-700">
+    <section className="max-w-7xl mx-auto px-4 py-12 font-sans text-sm text-slate-700 mb-40">
       <h2 className="text-2xl font-semibold mb-6">References:</h2>
       <ul className="space-y-4 list-disc list-inside">
         <li>

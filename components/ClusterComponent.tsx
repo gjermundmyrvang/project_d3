@@ -38,16 +38,6 @@ type ClusterProps = {
 
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
-const COLORS2 = [
-  "#e0ac2b",
-  "#6689c6",
-  "#a4c969",
-  "#e85252",
-  "#9a6fb0",
-  "#a53253",
-  "#7f7f7f",
-];
-
 const COLORS = [
   "#00FFFF", // Cyan
   "#FF6EC7", // Neon pink
@@ -95,8 +85,6 @@ export const ClusterComponent = ({
   data,
   selectedYear,
 }: ClusterProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, 0.3);
   const chartRef = useRef(null);
   const [tooltip, setTooltip] = useState<TooltipProps | null>(null);
 
@@ -121,37 +109,35 @@ export const ClusterComponent = ({
   }, [filtered]);
 
   useEffect(() => {
-    if (!isInView) return;
-    console.log("NESTED: ", nestedData);
     createViz();
-  }, [nestedData, isInView]);
+  }, [nestedData]);
 
   const createViz = () => {
-    const svgElement = d3.select(chartRef.current);
-    svgElement.select("*").remove();
+    const g = d3.select(chartRef.current);
+    g.selectAll("*").remove();
+
     const hierarchy = d3
       .hierarchy(nestedData)
       .sum((d) => d.value)
       .sort((a, b) => b.value! - a.value!);
 
-    const packGenerator = d3.pack<Tree>().size([width, height]).padding(4);
-    const root = packGenerator(hierarchy);
+    const packGenerator = d3
+      .pack<Tree>()
+      .size([
+        width - MARGIN.left - MARGIN.right,
+        height - MARGIN.top - MARGIN.bottom,
+      ])
+      .padding(4);
 
-    const firstLevelGroups = hierarchy?.children?.map(
-      (child) => child.data.country
-    );
+    const root = packGenerator(hierarchy);
+    const level1 = root.descendants().filter((d) => d.depth === 1);
+
+    const firstLevelGroups = level1.map((d) => d.data.country);
 
     const colorScale = d3
       .scaleOrdinal<string>()
-      .domain(firstLevelGroups || [])
+      .domain(firstLevelGroups)
       .range(COLORS);
-
-    const g = svgElement
-      .append("g")
-      .attr("transform", `translate(${MARGIN.left}, ${MARGIN.top})`);
-
-    // Level 1 nodes (bigboys)
-    const level1 = root.descendants().filter((d) => d.depth === 1);
 
     const bigBoyz = g
       .selectAll("g.level1")
@@ -164,7 +150,7 @@ export const ClusterComponent = ({
       .append("circle")
       .attr("cx", (d) => d.x)
       .attr("cy", (d) => d.y)
-      .attr("r", 0) // start radius from 0
+      .attr("r", 0)
       .attr("fill", (d) => colorScale(d.data.country))
       .attr("stroke", (d) => colorScale(d.data.country))
       .attr("stroke-opacity", 0.3)
@@ -190,7 +176,7 @@ export const ClusterComponent = ({
       .duration(2200)
       .style("opacity", 1);
 
-    // Leaf nodes (small countries)
+    // Leaf nodes
     const leaves = root.leaves();
 
     const leafGroups = g
@@ -204,7 +190,7 @@ export const ClusterComponent = ({
       .append("circle")
       .attr("cx", (d) => d.x)
       .attr("cy", (d) => d.y)
-      .attr("r", 0) // animate in
+      .attr("r", 0)
       .attr("stroke", (d) => colorScale(d.parent?.data.country || ""))
       .attr("fill", (d) => colorScale(d.parent?.data.country || ""))
       .attr("fill-opacity", 0.2)
@@ -213,16 +199,14 @@ export const ClusterComponent = ({
         const data = hovered.data;
         setTooltip({ x, y, data });
       })
-      .on("mouseleave", () => {
-        setTooltip(null);
-      })
+      .on("mouseleave", () => setTooltip(null))
       .transition()
       .duration(2000)
       .ease(d3.easeCubicOut)
       .attr("r", (d) => d.r);
 
     leafGroups
-      .filter((d) => d.r > 12) // Otherwise too small
+      .filter((d) => d.r > 12)
       .append("text")
       .attr("x", (d) => d.x)
       .attr("y", (d) => d.y)
@@ -240,10 +224,11 @@ export const ClusterComponent = ({
   };
 
   return (
-    <div ref={containerRef} className="relative">
-      <svg ref={chartRef} width={width} height={height}></svg>
+    <div className="relative pt-28">
+      <svg width={width} height={height}>
+        <g ref={chartRef} transform={`translate(-100, ${MARGIN.top})`} />
+      </svg>
       {tooltip && <Tooltip x={tooltip.x} y={tooltip.y} data={tooltip.data} />}
-      <Description />
     </div>
   );
 };
@@ -262,20 +247,6 @@ const Tooltip = ({ x, y, data }: TooltipProps) => {
     >
       <p className="text-md">{data.country}</p>
       <p className="text-sm">Contribution: {data.value.toFixed(2)} %</p>
-    </div>
-  );
-};
-
-const Description = () => {
-  return (
-    <div className="flex flex-col w-full max-w-3xl font-mono absolute top-5 left-16">
-      <h2 className="mt-5 text-2xl font-semibold text-white mb-2">
-        Contributions To Global Warming
-      </h2>
-      <p className="text-gray-100 leading-relaxed">
-        Just a few countries have contributed to global warming as much as, or
-        even more than, all other countries combined.
-      </p>
     </div>
   );
 };

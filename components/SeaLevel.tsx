@@ -171,13 +171,13 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
       .ease(d3.easeCubicInOut)
       .attr("stroke-dashoffset", 0);
 
-    const negArea = svgElement
+    svgElement
       .append("path")
       .datum(negativeData)
       .attr("fill", "rgba(120, 199, 214, 0.3)")
       .attr("d", areaBulder);
 
-    const posArea = svgElement
+    svgElement
       .append("path")
       .datum(positiveData)
       .attr("fill", "rgba(248, 69, 69, 0.3)")

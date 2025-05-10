@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
 const pathsdata = paths2;
-const pathsmadeby = madebypath;
+//const pathsmadeby = madebypath;
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
 export const WelcomeScreen = () => {

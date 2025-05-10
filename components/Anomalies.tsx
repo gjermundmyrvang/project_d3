@@ -72,7 +72,7 @@ export const AnomalyComponent = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl justify-center items-center mx-auto m-6">
+    <div className="w-full max-w-7xl justify-center items-center mx-auto m-6 pb-10">
       <div className="w-full min-h-[60rem] relative" ref={vizRef}>
         {data && byYearData && (
           <Anomalies
@@ -97,13 +97,13 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
   const [tooltipData, setTooltipData] = useState<TooltipProps | null>(null);
 
   // Y axis (temperature)
-  const [yMin, yMax] = d3.extent(data, (d) => d.anomaly);
+  const [yMin] = d3.extent(data, (d) => d.anomaly);
   const yScale = useMemo(() => {
     return d3
       .scaleLinear()
       .domain([yMin ?? 0, 1])
       .range([boundsHeight, 0]);
-  }, [data, height]);
+  }, [data, boundsHeight]);
 
   // X axis (years)
   const xScale = useMemo(() => {
@@ -112,7 +112,7 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
       .domain(grouped.map((d) => d.year.toString()))
       .range([0, boundsWidth])
       .padding(0.2);
-  }, [grouped, width]);
+  }, [grouped, boundsWidth]);
 
   const colorScale = d3
     .scaleLinear<string>()
@@ -238,9 +238,9 @@ const Tooltip = ({ x, y, year, min, max, mean }: TooltipProps) => {
       style={{ left: x + 50, top: y - 60 }}
     >
       <p className="text-md font-bold">{year}:</p>
-      <p className="text-sm">Min: {min.toFixed(2)}</p>
-      <p className="text-sm">Max: {max.toFixed(2)}</p>
-      <p className="text-sm">Mean: {mean.toFixed(2)}</p>
+      <p className="text-sm">Min: {min.toFixed(2)}°C</p>
+      <p className="text-sm">Max: {max.toFixed(2)}°C</p>
+      <p className="text-sm">Mean: {mean.toFixed(2)}°C</p>
     </div>
   );
 };

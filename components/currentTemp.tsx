@@ -15,9 +15,9 @@ export const GlobalTempLatest = () => {
   const year = entry.year;
   const chartRef = useRef<HTMLDivElement>(null);
   const [cursorPosition, setCursorPosition] = useState<number | null>(null);
-
   const { width, height } = useDimensions(chartRef);
   console.log("Width and height currenttemps:", { width, height });
+
   return (
     <div className="grid grid-cols-[1fr_3fr_1fr] items-center gap-12 justify-center h-[20vh] border-b border-gray-200">
       <div className="flex flex-col items-center justify-center h-full w-full border-r border-gray-200">

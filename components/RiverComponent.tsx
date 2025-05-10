@@ -68,23 +68,19 @@ export const RiverComponent = () => {
   };
 
   return (
-    <div className="relative h-[150vh]">
-      <div className="sticky top-0">
-        <div className="w-full relative">
-          <div className="w-full max-w-7xl justify-center items-center mx-auto  relative">
-            <div ref={riverRef} className="w-full min-h-[60rem]">
-              {antarctica && greenland && (
-                <RiverViz
-                  width={width}
-                  height={height}
-                  antarctica={antarctica}
-                  greenland={greenland}
-                />
-              )}
-            </div>
-          </div>
-          <Description />
+    <div className="w-full relative">
+      <div className="w-full max-w-7xl justify-center items-center mx-auto  relative">
+        <div ref={riverRef} className="w-full min-h-[60rem]">
+          {antarctica && greenland && (
+            <RiverViz
+              width={width}
+              height={height}
+              antarctica={antarctica}
+              greenland={greenland}
+            />
+          )}
         </div>
+        <Description />
       </div>
     </div>
   );
@@ -114,11 +110,11 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
   const maxX = 2020;
   const xScale = useMemo(() => {
     return d3.scaleLinear().domain([minX, maxX]).range([0, boundsWidth]);
-  }, [antarctica, width]);
+  }, [antarctica, boundsWidth]);
 
   const yScale = useMemo(() => {
     return d3.scaleLinear().domain([-6000, 0]).range([boundsHeight, 0]);
-  }, [antarctica, height]);
+  }, [antarctica, boundsHeight]);
 
   const maxMagnitude =
     d3.max([...antarctica, ...greenland], (d) => Math.abs(d.mean)) ?? 1;
@@ -245,7 +241,7 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
   };
 
   return (
-    <div ref={containerRef}>
+    <div ref={containerRef} className="pt-10">
       <svg width={width} height={height}>
         <g
           width={boundsWidth}
@@ -260,7 +256,7 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
 
 const Description = () => {
   return (
-    <div className="flex flex-col w-full max-w-3xl mx-auto absolute top-50 left-10 font-mono">
+    <div className="flex flex-col w-full max-w-3xl mx-auto absolute top-50 left-0 font-mono">
       <h2 className="text-2xl font-semibold text-black mb-4 tracking-tight">
         Ice Sheet Mass Loss 2002 - 2020
       </h2>
