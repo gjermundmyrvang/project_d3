@@ -1,4 +1,5 @@
 import { AnomalyComponent } from "@/components/Anomalies";
+import { CO2Component } from "@/components/CO2Component";
 import { ContributionMap } from "@/components/ContributionMap";
 import { GlobalTempLatest } from "@/components/currentTemp";
 import { References } from "@/components/References";
@@ -24,6 +25,11 @@ export default function Home() {
         <section id="anomaly">
           <Sticky margin={150}>
             <AnomalyComponent />
+          </Sticky>
+        </section>
+        <section id="co2">
+          <Sticky margin={150} bg="bg-blue-200">
+            <CO2Component />
           </Sticky>
         </section>
         <section id="map">
