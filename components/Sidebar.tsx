@@ -6,6 +6,7 @@ const sections = [
   { id: "welcome", label: "Welcome" },
   { id: "temp", label: "Global Temp History" },
   { id: "anomaly", label: "Anomalies" },
+  { id: "co2", label: "CO2" },
   { id: "map", label: "Country Contributions" },
   { id: "river", label: "Ice Mass Loss" },
   { id: "sea", label: "Sea Level Rise" },
