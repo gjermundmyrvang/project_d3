@@ -39,13 +39,13 @@ type ClusterProps = {
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
 const COLORS = [
-  "#00FFFF", // Cyan
-  "#FF6EC7", // Neon pink
-  "#39FF14", // Bright green
-  "#FFD700", // Gold
-  "#FF4500", // Orange red
-  "#7DF9FF", // Electric blue
-  "#DA70D6", // Orchid
+  "#e0ac2b",
+  "#6689c6",
+  "#a4c969",
+  "#e85252",
+  "#9a6fb0",
+  "#a53253",
+  "#7f7f7f",
 ];
 
 const assignChildren = (
