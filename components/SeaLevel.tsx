@@ -91,7 +91,7 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
       .scaleLinear()
       .domain([minSeaValue ?? 1, maxSeaValue ?? 1])
       .range([boundsHeight, 0]);
-  }, [data, boundsHeight]);
+  }, [data, boundsHeight, maxSeaValue, minSeaValue]);
 
   const areaBulder = d3
     .area<DataProps>()
@@ -312,7 +312,20 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
         });
     };
     createViz();
-  }, [xScale, yScale, boundsHeight, isInView]);
+  }, [
+    xScale,
+    yScale,
+    boundsHeight,
+    isInView,
+    areaBulder,
+    boundsWidth,
+    data,
+    lineBuilder,
+    maxSeaValue,
+    minSeaValue,
+    negativeData,
+    positiveData,
+  ]);
 
   return (
     <div ref={containerRef}>

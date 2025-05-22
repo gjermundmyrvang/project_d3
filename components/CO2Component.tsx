@@ -76,6 +76,16 @@ const CO2Viz = ({ width, height, data }: CO2VizProps) => {
   const [particles, setParticles] = useState<any[]>([]);
 
   useEffect(() => {
+    const generateParticles = (num: number) => {
+      const newParticles = d3.range(num).map(() => ({
+        x: Math.random() * boundsWidth,
+        y: Math.random() * boundsHeight,
+        r: randomRadius(),
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+      }));
+      return newParticles;
+    };
     setParticles(generateParticles(data[0].ppm));
   }, []);
 
@@ -118,7 +128,7 @@ const CO2Viz = ({ width, height, data }: CO2VizProps) => {
       running = false;
       cancelAnimationFrame(frame);
     };
-  }, [particles, width, height]);
+  }, [particles, width, height, boundsHeight, boundsWidth, data.length]);
 
   const startAnimation = () => {
     let yearIndex = 0;
@@ -193,7 +203,7 @@ const CO2BarChart = ({ width, height, data }: CO2VizProps) => {
       .domain(data.map((d) => d.year.toString()))
       .range([0, boundsWidth])
       .padding(0.2);
-  }, [boundsWidth]);
+  }, [boundsWidth, data]);
 
   const yScale = useMemo(() => {
     return d3.scaleLinear().domain([290, 430]).range([boundsHeight, 0]);
@@ -253,7 +263,7 @@ const CO2BarChart = ({ width, height, data }: CO2VizProps) => {
         .attr("height", (d) => boundsHeight - yScale(d.ppm));
     };
     createViz();
-  }, []);
+  }, [boundsHeight, boundsWidth, colorScale, data, xScale, yScale]);
 
   return (
     <div>

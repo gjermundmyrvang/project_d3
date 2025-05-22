@@ -1,14 +1,8 @@
 "use client";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import * as d3 from "d3";
-import { useDimensions } from "@/utils/useDimensions";
 import { useInView } from "@/lib/useInView";
+import { useDimensions } from "@/utils/useDimensions";
+import * as d3 from "d3";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type DataProps = {
   month: string;
@@ -109,7 +103,7 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
       .scaleLinear()
       .domain([yMin ?? 0, 1])
       .range([boundsHeight, 0]);
-  }, [data, boundsHeight, yMin]);
+  }, [boundsHeight, yMin]);
 
   // X axis (years)
   const xScale = useMemo(() => {
@@ -275,7 +269,17 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
         .text("month that was coldest compared to average");
     };
     createViz();
-  }, [xScale, yScale, boundsHeight, isInView]);
+  }, [
+    xScale,
+    yScale,
+    boundsHeight,
+    isInView,
+    boundsWidth,
+    colorScale,
+    grouped,
+    lineData,
+    linePath,
+  ]);
 
   return (
     <div ref={containerRef}>

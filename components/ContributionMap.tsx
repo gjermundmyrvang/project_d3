@@ -3,7 +3,7 @@ import { mapdata } from "@/data/mapdata";
 import { useDimensions } from "@/utils/useDimensions";
 import * as d3 from "d3";
 import { Feature, FeatureCollection } from "geojson";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClusterComponent } from "./ClusterComponent";
 
 type DataProps = {
@@ -179,7 +179,7 @@ const MapComponent = ({
       .attr("y2", "0%");
 
     const stops = d3.range(0, 1.01, 1 / 10);
-    stops.forEach((s, i) => {
+    stops.forEach((s, _) => {
       gradient
         .append("stop")
         .attr("offset", `${s * 100}%`)
