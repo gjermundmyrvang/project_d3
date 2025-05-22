@@ -5,7 +5,6 @@ import * as d3 from "d3";
 import { Feature, FeatureCollection } from "geojson";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ClusterComponent } from "./ClusterComponent";
-import { useInView } from "@/lib/useInView";
 
 type DataProps = {
   country: string;
@@ -143,20 +142,8 @@ const MapComponent = ({
 
   const filtered = data.filter((d) => d.year === selectedYear);
   const valueMap = new Map(filtered.map((d) => [d.code, d.value]));
-  const colorScale = useMemo(() => {
-    const colors = [
-      "#FFFFFF",
-      "#00FFF6",
-      "#00A0CD",
-      "#4B48FA",
-      "#E988F0",
-      "#FDE080",
-      "#FF8C00",
-    ];
-    return d3.scaleQuantize<string>().domain([0, 1]).range(colors);
-  }, []);
 
-  const colorScale2 = d3
+  const colorScale = d3
     .scaleSequential()
     .interpolator(d3.interpolateInferno)
     .domain([0, 20]);
@@ -180,7 +167,7 @@ const MapComponent = ({
       .attr("fill", (d) => {
         const id = d.id?.toString();
         const value = id ? valueMap.get(id) : undefined;
-        return value !== undefined ? colorScale2(value) : "#fff";
+        return value !== undefined ? colorScale(value) : "#fff";
       })
       .attr("fill-opacity", 0.8)
       .on("mouseover", (event, shape) => {
@@ -211,9 +198,9 @@ const MapComponent = ({
         .attr("offset", `${s * 100}%`)
         .attr(
           "stop-color",
-          colorScale2(
-            colorScale2.domain()[0] +
-              s * (colorScale2.domain()[1] - colorScale2.domain()[0])
+          colorScale(
+            colorScale.domain()[0] +
+              s * (colorScale.domain()[1] - colorScale.domain()[0])
           )
         );
     });
@@ -230,7 +217,7 @@ const MapComponent = ({
     // Add axis
     const legendScale = d3
       .scaleLinear()
-      .domain(colorScale2.domain())
+      .domain(colorScale.domain())
       .range([0, width]);
 
     const legendAxis = d3

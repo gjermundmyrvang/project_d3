@@ -1,7 +1,6 @@
 "use client";
-import { useRef, useMemo, useEffect, useState } from "react";
 import * as d3 from "d3";
-import { useInView } from "@/lib/useInView";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type TreeNode = {
   type: string;
