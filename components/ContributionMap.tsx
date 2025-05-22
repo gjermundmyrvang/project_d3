@@ -179,7 +179,7 @@ const MapComponent = ({
       .attr("y2", "0%");
 
     const stops = d3.range(0, 1.01, 1 / 10);
-    stops.forEach((s, _) => {
+    stops.forEach((s) => {
       gradient
         .append("stop")
         .attr("offset", `${s * 100}%`)
@@ -231,6 +231,8 @@ const MapComponent = ({
     valueMap,
     colorScale,
     geoPathGenerator,
+    height,
+    width,
   ]);
 
   return (

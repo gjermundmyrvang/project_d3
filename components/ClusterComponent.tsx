@@ -219,7 +219,7 @@ export const ClusterComponent = ({
         .style("opacity", 1);
     };
     createViz();
-  }, [nestedData]);
+  }, [nestedData, height, width]);
 
   return (
     <div className="relative pt-28">

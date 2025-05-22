@@ -105,11 +105,11 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
   const maxX = 2020;
   const xScale = useMemo(() => {
     return d3.scaleLinear().domain([minX, maxX]).range([0, boundsWidth]);
-  }, [antarctica, boundsWidth]);
+  }, [boundsWidth]);
 
   const yScale = useMemo(() => {
     return d3.scaleLinear().domain([-6000, 0]).range([boundsHeight, 0]);
-  }, [antarctica, boundsHeight]);
+  }, [boundsHeight]);
 
   const maxMagnitude =
     d3.max([...antarctica, ...greenland], (d) => Math.abs(d.mean)) ?? 1;
@@ -237,7 +237,16 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
       svgElement.selectAll(".tick line").attr("stroke", "none");
     };
     createViz();
-  }, [boundsHeight, isInView]);
+  }, [
+    boundsHeight,
+    isInView,
+    antarctica,
+    areaBuilder,
+    boundsWidth,
+    greenland,
+    xScale,
+    yScale,
+  ]);
 
   return (
     <div ref={containerRef} className="pt-10">

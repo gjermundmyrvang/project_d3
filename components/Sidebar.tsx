@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 
 const sections = [
   { id: "welcome", label: "Welcome" },
-  { id: "anomaly", label: "Anomalies" },
-  { id: "co2", label: "CO2" },
-  { id: "map", label: "Country Contributions" },
-  { id: "river", label: "Ice Mass Loss" },
-  { id: "sea", label: "Sea Level Rise" },
+  { id: "anomaly", label: "Global Warming" },
+  { id: "co2", label: "Rising CO2 Levels" },
+  { id: "map", label: "The Contributors" },
+  { id: "river", label: "Melting Ice, Shrinking Glaciers" },
+  { id: "sea", label: "Oceans on the Rise" },
   { id: "references", label: "References" },
 ];
 
