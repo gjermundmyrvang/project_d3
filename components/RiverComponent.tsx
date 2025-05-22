@@ -237,16 +237,7 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
       svgElement.selectAll(".tick line").attr("stroke", "none");
     };
     createViz();
-  }, [
-    boundsHeight,
-    isInView,
-    antarctica,
-    areaBuilder,
-    boundsWidth,
-    greenland,
-    xScale,
-    yScale,
-  ]);
+  }, [isInView]);
 
   return (
     <div ref={containerRef} className="pt-10">

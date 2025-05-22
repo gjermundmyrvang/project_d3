@@ -269,17 +269,7 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
         .text("month that was coldest compared to average");
     };
     createViz();
-  }, [
-    xScale,
-    yScale,
-    boundsHeight,
-    isInView,
-    boundsWidth,
-    colorScale,
-    grouped,
-    lineData,
-    linePath,
-  ]);
+  }, [isInView]);
 
   return (
     <div ref={containerRef}>

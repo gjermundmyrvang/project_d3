@@ -312,20 +312,7 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
         });
     };
     createViz();
-  }, [
-    xScale,
-    yScale,
-    boundsHeight,
-    isInView,
-    areaBulder,
-    boundsWidth,
-    data,
-    lineBuilder,
-    maxSeaValue,
-    minSeaValue,
-    negativeData,
-    positiveData,
-  ]);
+  }, [isInView]);
 
   return (
     <div ref={containerRef}>
