@@ -3,9 +3,8 @@ import { mapdata } from "@/data/mapdata";
 import { useDimensions } from "@/utils/useDimensions";
 import * as d3 from "d3";
 import { Feature, FeatureCollection } from "geojson";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClusterComponent } from "./ClusterComponent";
-import { useInView } from "@/lib/useInView";
 
 type DataProps = {
   country: string;
@@ -42,19 +41,6 @@ export const ContributionMap = () => {
 
   const uniqueYears = [...new Set(data.map((d) => d.year))];
 
-  const colorScale = useMemo(() => {
-    const colors = [
-      "#FFFFFF",
-      "#00FFF6",
-      "#00A0CD",
-      "#4B48FA",
-      "#E988F0",
-      "#FDE080",
-      "#FF8C00",
-    ];
-    return d3.scaleQuantize<string>().domain([0, 1]).range(colors);
-  }, [data]);
-
   return (
     <div
       ref={vizRef}
@@ -80,16 +66,13 @@ export const ContributionMap = () => {
               selectedYear={selectedYear}
             />
           ) : (
-            <>
-              <MapComponent
-                width={width}
-                height={height}
-                mapdata={geodata}
-                data={data}
-                selectedYear={selectedYear}
-              />
-              <Legend scale={colorScale} />
-            </>
+            <MapComponent
+              width={width}
+              height={height}
+              mapdata={geodata}
+              data={data}
+              selectedYear={selectedYear}
+            />
           )}
           <Description />
         </div>
@@ -146,18 +129,11 @@ const MapComponent = ({
 
   const filtered = data.filter((d) => d.year === selectedYear);
   const valueMap = new Map(filtered.map((d) => [d.code, d.value]));
-  const colorScale = useMemo(() => {
-    const colors = [
-      "#FFFFFF",
-      "#00FFF6",
-      "#00A0CD",
-      "#4B48FA",
-      "#E988F0",
-      "#FDE080",
-      "#FF8C00",
-    ];
-    return d3.scaleQuantize<string>().domain([0, 1]).range(colors);
-  }, []);
+
+  const colorScale = d3
+    .scaleSequential()
+    .interpolator(d3.interpolateInferno)
+    .domain([0, 20]);
 
   const projection = d3.geoNaturalEarth1().fitSize([width, height], mapdata);
 
@@ -173,8 +149,8 @@ const MapComponent = ({
       .enter()
       .append("path")
       .attr("d", (d) => geoPathGenerator(d)!)
-      .attr("stroke", "#000")
-      .attr("stroke-width", 0.5)
+      .attr("stroke", "#FAFAFA") //2DFFFF
+      .attr("stroke-width", 0.2)
       .attr("fill", (d) => {
         const id = d.id?.toString();
         const value = id ? valueMap.get(id) : undefined;
@@ -190,6 +166,64 @@ const MapComponent = ({
       .on("mouseleave", () => {
         setTooltip(null);
       });
+
+    // Create gradient
+    const defs = svgElement.append("defs");
+
+    const gradient = defs
+      .append("linearGradient")
+      .attr("id", "legend-gradient")
+      .attr("x1", "0%")
+      .attr("x2", "100%")
+      .attr("y1", "0%")
+      .attr("y2", "0%");
+
+    const stops = d3.range(0, 1.01, 1 / 10);
+    stops.forEach((s, _) => {
+      gradient
+        .append("stop")
+        .attr("offset", `${s * 100}%`)
+        .attr(
+          "stop-color",
+          colorScale(
+            colorScale.domain()[0] +
+              s * (colorScale.domain()[1] - colorScale.domain()[0])
+          )
+        );
+    });
+
+    // Draw the gradient bar
+    svgElement
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", boundsHeight)
+      .attr("width", width)
+      .attr("height", height)
+      .style("fill", "url(#legend-gradient)");
+
+    // Add axis
+    const legendScale = d3
+      .scaleLinear()
+      .domain(colorScale.domain())
+      .range([0, width]);
+
+    const legendAxis = d3
+      .axisBottom(legendScale)
+      .ticks(5)
+      .tickFormat((d) => `${d}`);
+
+    const legendAxisGroup = svgElement
+      .append("g")
+      .attr("transform", `translate(0, ${boundsHeight - 50})`)
+      .call(legendAxis);
+
+    legendAxisGroup
+      .selectAll("text")
+      .style("fill", "white")
+      .style("font-weight", "bold")
+      .style("font-size", "14px");
+
+    legendAxisGroup.selectAll("path, line").style("stroke", "white");
   }, [
     mapdata,
     boundsWidth,
@@ -234,35 +268,6 @@ const Tooltip = ({ x, y, shape, value }: TooltipProps) => {
     >
       <p className="text-md">{name}:</p>
       <p className="text-sm">Countribution: {contribution} %</p>
-    </div>
-  );
-};
-
-type LegendProps = {
-  scale: d3.ScaleQuantize<string>;
-};
-
-const Legend = ({ scale }: LegendProps) => {
-  const thresholds = scale.thresholds(); // Gets domain breakpoints
-  const colors = scale.range();
-
-  return (
-    <div className="flex flex-col gap-2 text-white font-mono mt-4 absolute bottom-40 left-0">
-      {colors.map((color, i) => {
-        const min = i === 0 ? scale.domain()[0] : thresholds[i - 1];
-        const max = thresholds[i] ?? scale.domain()[1];
-
-        return (
-          <div key={i} className="flex items-center gap-2">
-            <div className="w-6 h-3" style={{ backgroundColor: color }} />
-            {i === colors.length - 1 ? (
-              <span>{`${min.toFixed(2)} – >= ${max.toFixed(2)} %`}</span>
-            ) : (
-              <span>{`${min.toFixed(2)} – ${max.toFixed(2)} %`}</span>
-            )}
-          </div>
-        );
-      })}
     </div>
   );
 };

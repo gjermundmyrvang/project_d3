@@ -1,10 +1,8 @@
-// components/Sidebar.tsx
 "use client";
 import { useEffect, useState } from "react";
 
 const sections = [
   { id: "welcome", label: "Welcome" },
-  { id: "temp", label: "Global Temp History" },
   { id: "anomaly", label: "Anomalies" },
   { id: "co2", label: "CO2" },
   { id: "map", label: "Country Contributions" },
@@ -19,7 +17,7 @@ export const Sidebar = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        for (let entry of entries) {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
             break;

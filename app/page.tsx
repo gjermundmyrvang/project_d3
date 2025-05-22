@@ -1,7 +1,6 @@
 import { AnomalyComponent } from "@/components/Anomalies";
 import { CO2Component } from "@/components/CO2Component";
 import { ContributionMap } from "@/components/ContributionMap";
-import { GlobalTempLatest } from "@/components/currentTemp";
 import { References } from "@/components/References";
 import { RiverComponent } from "@/components/RiverComponent";
 import { SeaLevel } from "@/components/SeaLevel";
@@ -16,11 +15,6 @@ export default function Home() {
       <main className="flex-1 pl-48">
         <section id="welcome">
           <WelcomeScreen />
-        </section>
-        <section id="temp">
-          <Sticky margin={50}>
-            <GlobalTempLatest />
-          </Sticky>
         </section>
         <section id="anomaly">
           <Sticky margin={150}>

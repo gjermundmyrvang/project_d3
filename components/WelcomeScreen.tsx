@@ -1,11 +1,10 @@
 "use client";
-import { madebypath, paths2 } from "@/data/custompaths";
+import { paths2 } from "@/data/custompaths";
 import { useDimensions } from "@/utils/useDimensions";
 import * as d3 from "d3";
 import { useEffect, useRef } from "react";
 
 const pathsdata = paths2;
-//const pathsmadeby = madebypath;
 const MARGIN = { top: 30, right: 30, bottom: 50, left: 50 };
 
 export const WelcomeScreen = () => {
