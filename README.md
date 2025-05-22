@@ -1,5 +1,43 @@
 # Creative Data Viz Project
 
+This project is a step-by-step climate data storytelling website built with **Next.js** and **D3.js**. It visualizes the relationship between CO₂ levels, temperature rise, ice loss, and sea level changes using real-world datasets.
+
+## Requirements
+
+Before you begin, make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- [Git](https://git-scm.com/)
+- A terminal (e.g., Terminal, Git Bash, or VS Code integrated terminal)
+
+## Getting Started
+
+Follow these steps to run the project locally on your machine.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/gjermundmyrvang/project_d3.git
+```
+
+### 2. Navigate into the Project Folder
+```bash
+cd project_d3
+```
+
+### 3. Install Dependencies
+```bash
+npm install
+```
+
+### 4. Start the Development Server
+```bash
+npm run dev
+```
+Once the server is running, open your browser and visit:
+- http://localhost:3000
+
+
 ## **Sources**
 
 - **Copernicus Climate Change Service (C3S)**. Hersbach, H., Bell, B., Berrisford, P., Biavati, G., Horányi, A., Muñoz Sabater, J., Nicolas, J., Peubey, C., Radu, R., Rozum, I., Schepers, D., Simmons, A., Soci, C., Dee, D., Thépaut, J-N. (2023). _ERA5 monthly averaged data on single levels from 1940 to present_. [DOI: 10.24381/cds.f17050d7](https://doi.org/10.24381/cds.f17050d7) (Accessed on 07-April-2025).
