@@ -17,7 +17,7 @@ export const Sidebar = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        for (let entry of entries) {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
             break;

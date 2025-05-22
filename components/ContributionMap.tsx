@@ -41,19 +41,6 @@ export const ContributionMap = () => {
 
   const uniqueYears = [...new Set(data.map((d) => d.year))];
 
-  const colorScale = useMemo(() => {
-    const colors = [
-      "#FFFFFF",
-      "#00FFF6",
-      "#00A0CD",
-      "#4B48FA",
-      "#E988F0",
-      "#FDE080",
-      "#FF8C00",
-    ];
-    return d3.scaleQuantize<string>().domain([0, 1]).range(colors);
-  }, [data]);
-
   return (
     <div
       ref={vizRef}

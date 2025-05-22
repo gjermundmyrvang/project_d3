@@ -84,14 +84,14 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
       .domain(data.map((d) => d.year.toString()))
       .range([0, boundsWidth])
       .padding(0.2);
-  }, [data, width]);
+  }, [data, boundsWidth]);
 
   const yScale = useMemo(() => {
     return d3
       .scaleLinear()
       .domain([minSeaValue ?? 1, maxSeaValue ?? 1])
       .range([boundsHeight, 0]);
-  }, [data, height]);
+  }, [data, boundsHeight]);
 
   const areaBulder = d3
     .area<DataProps>()
@@ -111,209 +111,208 @@ const SeaLevelGraph = ({ width, height, data }: SeaLevelProps) => {
 
   useEffect(() => {
     if (!isInView) return;
+    const createViz = () => {
+      const svgElement = d3.select(chartRef.current);
+      svgElement.selectAll("*").remove();
+
+      const allYears = xScale.domain();
+      const filteredYears = allYears.filter((_, i) => i % 10 === 0);
+      const xAxis = d3.axisTop(xScale).ticks(0).tickValues(filteredYears);
+
+      const yAxis = d3
+        .axisLeft(yScale)
+        .tickFormat(() => "")
+        .ticks(0);
+
+      svgElement
+        .append("g")
+        .attr("transform", `translate(${boundsWidth},0)`)
+        .attr("z-index", "10")
+        .call(yAxis)
+        .call((g) => g.select(".domain").attr("stroke", "none"));
+
+      svgElement
+        .append("path")
+        .datum(negativeData)
+        .attr("fill", "none")
+        .attr("stroke", "#0077B6")
+        .attr("stroke-width", 2)
+        .attr("d", lineBuilder)
+        .attr("stroke-dasharray", function () {
+          return (this as SVGPathElement).getTotalLength();
+        })
+        .attr("stroke-dashoffset", function () {
+          return (this as SVGPathElement).getTotalLength();
+        })
+        .transition()
+        .duration(3000)
+        .ease(d3.easeCubicInOut)
+        .attr("stroke-dashoffset", 0);
+
+      svgElement
+        .append("path")
+        .datum(positiveData)
+        .attr("fill", "none")
+        .attr("stroke", "#F84545")
+        .attr("stroke-width", 2)
+        .attr("d", lineBuilder)
+        .attr("stroke-dasharray", function () {
+          return (this as SVGPathElement).getTotalLength();
+        })
+        .attr("stroke-dashoffset", function () {
+          return (this as SVGPathElement).getTotalLength();
+        })
+        .transition()
+        .delay(3000)
+        .duration(3000)
+        .ease(d3.easeCubicInOut)
+        .attr("stroke-dashoffset", 0);
+
+      svgElement
+        .append("path")
+        .datum(negativeData)
+        .attr("fill", "rgba(120, 199, 214, 0.3)")
+        .attr("d", areaBulder);
+
+      svgElement
+        .append("path")
+        .datum(positiveData)
+        .attr("fill", "rgba(248, 69, 69, 0.3)")
+        .attr("d", areaBulder);
+
+      svgElement
+        .append("g")
+        .attr("transform", "translate(0," + yScale(0) + ")")
+        .call(xAxis)
+        .call((g) => {
+          g.select(".domain").remove();
+          g.selectAll("text")
+            .style("font-weight", "bold")
+            .style("font-size", "14")
+            .style("font-family", "monospace")
+            .style("fill", "#fff");
+        })
+        .raise();
+
+      svgElement
+        .append("circle")
+        .attr(
+          "cx",
+          xScale(data.find((d) => d.max === maxSeaValue)?.year.toString()!)! +
+            xScale.bandwidth() / 2
+        )
+        .attr("cy", yScale(maxSeaValue ?? 0))
+        .attr("r", 0)
+        .transition()
+        .delay(6000)
+        .duration(1000)
+        .attr("r", 5)
+        .attr("fill", "#F84545");
+
+      svgElement
+        .append("circle")
+        .attr(
+          "cx",
+          xScale(data.find((d) => d.min === minSeaValue)?.year.toString()!)! +
+            xScale.bandwidth() / 2
+        )
+        .attr("cy", yScale(minSeaValue ?? 0))
+        .attr("r", 0)
+        .transition()
+        .duration(3000)
+        .attr("r", 5)
+        .attr("fill", "#0077B6");
+
+      const lowestText = `Sea Level: ${minSeaValue?.toFixed(2)} mm`;
+      const highestText = `Sea Level: ${maxSeaValue?.toFixed(2)} mm`;
+
+      svgElement
+        .append("text")
+        .attr("x", xScale("1940")! + boundsWidth / 6)
+        .attr("y", yScale(minSeaValue ?? 0))
+        .attr("text-anchor", "middle")
+        .style("font-family", "monospace")
+        .style("font-size", "14px")
+        .style("fill", "#0077B6")
+        .text(lowestText);
+
+      svgElement
+        .append("text")
+        .attr("x", xScale("2020")! - boundsWidth / 6)
+        .attr("y", yScale(maxSeaValue ?? 0))
+        .attr("text-anchor", "middle")
+        .style("font-family", "monospace")
+        .style("font-size", "14px")
+        .style("fill", "#F84545")
+        .text(highestText);
+
+      const foreign = svgElement
+        .append("foreignObject")
+        .attr("x", 150)
+        .attr("y", 50)
+        .attr("width", 200)
+        .attr("height", 200);
+
+      foreign
+        .append("xhtml:div")
+        .style("font-family", "monospace")
+        .style("font-size", "14px")
+        .style("fill", "#333")
+        .text("Year 2000 is the first to\nrecord sea levels above 0 mm");
+
+      svgElement
+        .append("defs")
+        .append("marker")
+        .attr("id", "arrow")
+        .attr("viewBox", "0 0 10 10")
+        .attr("refX", 5)
+        .attr("refY", 5)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto-start-reverse")
+        .append("path")
+        .attr("d", "M 0 0 L 10 5 L 0 10 z")
+        .attr("fill", "#fff");
+
+      svgElement
+        .append("line")
+        .attr("x1", 350)
+        .attr("y1", 60)
+        .attr("x2", xScale("2000")! - 10)
+        .attr("y2", yScale(0) - 30)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1.5)
+        .attr("marker-end", "url(#arrow)");
+
+      svgElement
+        .append("rect")
+        .attr("width", boundsWidth)
+        .attr("height", boundsHeight)
+        .attr("fill", "transparent")
+        .raise()
+        .on("mousemove", function (event) {
+          const [mouseX] = d3.pointer(event);
+          const domain = xScale.domain();
+          const positions = domain.map(
+            (d) => xScale(d)! + xScale.bandwidth() / 2
+          );
+
+          const index = d3.bisectCenter(positions, mouseX);
+          const year = domain[index];
+
+          const pointData = data.find((d) => d.year.toString() === year);
+          if (pointData) {
+            const x = xScale(year)! + xScale.bandwidth() / 2 + MARGIN.left;
+            const y = yScale(pointData.mean) + MARGIN.top;
+            setCursor({ x, y, data: pointData });
+          }
+        })
+        .on("mouseleave", () => {
+          setCursor(null);
+        });
+    };
     createViz();
   }, [xScale, yScale, boundsHeight, isInView]);
-
-  const createViz = () => {
-    const svgElement = d3.select(chartRef.current);
-    svgElement.selectAll("*").remove();
-
-    const allYears = xScale.domain();
-    const filteredYears = allYears.filter((_, i) => i % 10 === 0);
-    const xAxis = d3.axisTop(xScale).ticks(0).tickValues(filteredYears);
-
-    const yAxis = d3
-      .axisLeft(yScale)
-      .tickFormat(() => "")
-      .ticks(0);
-
-    svgElement
-      .append("g")
-      .attr("transform", `translate(${boundsWidth},0)`)
-      .attr("z-index", "10")
-      .call(yAxis)
-      .call((g) => g.select(".domain").attr("stroke", "none"));
-
-    svgElement
-      .append("path")
-      .datum(negativeData)
-      .attr("fill", "none")
-      .attr("stroke", "#0077B6")
-      .attr("stroke-width", 2)
-      .attr("d", lineBuilder)
-      .attr("stroke-dasharray", function () {
-        return (this as SVGPathElement).getTotalLength();
-      })
-      .attr("stroke-dashoffset", function () {
-        return (this as SVGPathElement).getTotalLength();
-      })
-      .transition()
-      .duration(3000)
-      .ease(d3.easeCubicInOut)
-      .attr("stroke-dashoffset", 0);
-
-    svgElement
-      .append("path")
-      .datum(positiveData)
-      .attr("fill", "none")
-      .attr("stroke", "#F84545")
-      .attr("stroke-width", 2)
-      .attr("d", lineBuilder)
-      .attr("stroke-dasharray", function () {
-        return (this as SVGPathElement).getTotalLength();
-      })
-      .attr("stroke-dashoffset", function () {
-        return (this as SVGPathElement).getTotalLength();
-      })
-      .transition()
-      .delay(3000)
-      .duration(3000)
-      .ease(d3.easeCubicInOut)
-      .attr("stroke-dashoffset", 0);
-
-    svgElement
-      .append("path")
-      .datum(negativeData)
-      .attr("fill", "rgba(120, 199, 214, 0.3)")
-      .attr("d", areaBulder);
-
-    svgElement
-      .append("path")
-      .datum(positiveData)
-      .attr("fill", "rgba(248, 69, 69, 0.3)")
-      .attr("d", areaBulder);
-
-    svgElement
-      .append("g")
-      .attr("transform", "translate(0," + yScale(0) + ")")
-      .call(xAxis)
-      .call((g) => {
-        g.select(".domain").remove();
-        g.selectAll("text")
-          .style("font-weight", "bold")
-          .style("font-size", "14")
-          .style("font-family", "monospace")
-          .style("fill", "#fff");
-      })
-      .raise();
-
-    svgElement
-      .append("circle")
-      .attr(
-        "cx",
-        xScale(data.find((d) => d.max === maxSeaValue)?.year.toString()!)! +
-          xScale.bandwidth() / 2
-      )
-      .attr("cy", yScale(maxSeaValue ?? 0))
-      .attr("r", 0)
-      .transition()
-      .delay(6000)
-      .duration(1000)
-      .attr("r", 5)
-      .attr("fill", "#F84545");
-
-    svgElement
-      .append("circle")
-      .attr(
-        "cx",
-        xScale(data.find((d) => d.min === minSeaValue)?.year.toString()!)! +
-          xScale.bandwidth() / 2
-      )
-      .attr("cy", yScale(minSeaValue ?? 0))
-      .attr("r", 0)
-      .transition()
-      .duration(3000)
-      .attr("r", 5)
-      .attr("fill", "#0077B6");
-
-    const lowestText = `Sea Level: ${minSeaValue?.toFixed(2)} mm`;
-    const highestText = `Sea Level: ${maxSeaValue?.toFixed(2)} mm`;
-
-    svgElement
-      .append("text")
-      .attr("x", xScale("1940")! + boundsWidth / 6)
-      .attr("y", yScale(minSeaValue ?? 0))
-      .attr("text-anchor", "middle")
-      .style("font-family", "monospace")
-      .style("font-size", "14px")
-      .style("fill", "#0077B6")
-      .text(lowestText);
-
-    svgElement
-      .append("text")
-      .attr("x", xScale("2020")! - boundsWidth / 6)
-      .attr("y", yScale(maxSeaValue ?? 0))
-      .attr("text-anchor", "middle")
-      .style("font-family", "monospace")
-      .style("font-size", "14px")
-      .style("fill", "#F84545")
-      .text(highestText);
-
-    const foreign = svgElement
-      .append("foreignObject")
-      .attr("x", 150)
-      .attr("y", 50)
-      .attr("width", 200)
-      .attr("height", 200);
-
-    foreign
-      .append("xhtml:div")
-      .style("font-family", "monospace")
-      .style("font-size", "14px")
-      .style("fill", "#333")
-      .text("Year 2000 is the first to\nrecord sea levels above 0 mm");
-
-    svgElement
-      .append("defs")
-      .append("marker")
-      .attr("id", "arrow")
-      .attr("viewBox", "0 0 10 10")
-      .attr("refX", 5)
-      .attr("refY", 5)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto-start-reverse")
-      .append("path")
-      .attr("d", "M 0 0 L 10 5 L 0 10 z")
-      .attr("fill", "#fff");
-
-    svgElement
-      .append("line")
-      .attr("x1", 350)
-      .attr("y1", 60)
-      .attr("x2", xScale("2000")! - 10)
-      .attr("y2", yScale(0) - 30)
-      .attr("stroke", "#fff")
-      .attr("stroke-width", 1.5)
-      .attr("marker-end", "url(#arrow)");
-
-    svgElement
-      .append("rect")
-      .attr("width", boundsWidth)
-      .attr("height", boundsHeight)
-      .attr("fill", "transparent")
-      .raise()
-      .on("mousemove", function (event) {
-        const [mouseX] = d3.pointer(event);
-        const domain = xScale.domain();
-        const positions = domain.map(
-          (d) => xScale(d)! + xScale.bandwidth() / 2
-        );
-
-        const index = d3.bisectCenter(positions, mouseX);
-        const year = domain[index];
-
-        const pointData = data.find((d) => d.year.toString() === year);
-        if (pointData) {
-          const x = xScale(year)! + xScale.bandwidth() / 2 + MARGIN.left;
-          const y = yScale(pointData.mean) + MARGIN.top;
-          setCursor({ x, y, data: pointData });
-        }
-      })
-      .on("mouseleave", () => {
-        setCursor(null);
-      });
-  };
 
   return (
     <div ref={containerRef}>

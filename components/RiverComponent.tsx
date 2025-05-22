@@ -101,11 +101,6 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
   const boundsWidth = width - MARGIN.right - MARGIN.left;
   const boundsHeight = height - MARGIN.top - MARGIN.bottom;
 
-  useEffect(() => {
-    if (!isInView) return;
-    createViz();
-  }, [boundsHeight, isInView]);
-
   const minX = 2002;
   const maxX = 2020;
   const xScale = useMemo(() => {
@@ -131,23 +126,25 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
     .y1((d) => yScale(d.mean - riverWidthScale(Math.abs(d.mean))))
     .curve(d3.curveBasis);
 
-  const createViz = () => {
-    const svgElement = d3.select(chartRef.current);
-    svgElement.selectAll("*").remove();
+  useEffect(() => {
+    if (!isInView) return;
+    const createViz = () => {
+      const svgElement = d3.select(chartRef.current);
+      svgElement.selectAll("*").remove();
 
-    // Clip path for flow animation
-    svgElement
-      .append("clipPath")
-      .attr("id", "clip-reveal")
-      .append("rect")
-      .attr("width", 0)
-      .attr("height", boundsHeight)
-      .transition()
-      .duration(5000)
-      .attr("width", boundsWidth);
+      // Clip path for flow animation
+      svgElement
+        .append("clipPath")
+        .attr("id", "clip-reveal")
+        .append("rect")
+        .attr("width", 0)
+        .attr("height", boundsHeight)
+        .transition()
+        .duration(5000)
+        .attr("width", boundsWidth);
 
-    // Add defs for animated gradient
-    svgElement.append("defs").html(`
+      // Add defs for animated gradient
+      svgElement.append("defs").html(`
             <linearGradient id="flow-antarctica" gradientTransform="rotate(90)">
                 <stop offset="0%" stop-color="#3b82f6">
                     <animate attributeName="offset" values="0%;100%" dur="3s" repeatCount="indefinite" />
@@ -162,83 +159,85 @@ const RiverViz = ({ width, height, antarctica, greenland }: RiveVizProps) => {
             </linearGradient>
         `);
 
-    // Add area paths
-    svgElement
-      .append("path")
-      .datum(antarctica)
-      .attr("clip-path", "url(#clip-reveal)")
-      .attr("fill", "url(#flow-antarctica)")
-      .attr("opacity", 0.7)
-      .attr("d", areaBuilder);
+      // Add area paths
+      svgElement
+        .append("path")
+        .datum(antarctica)
+        .attr("clip-path", "url(#clip-reveal)")
+        .attr("fill", "url(#flow-antarctica)")
+        .attr("opacity", 0.7)
+        .attr("d", areaBuilder);
 
-    svgElement
-      .append("path")
-      .datum(greenland)
-      .attr("clip-path", "url(#clip-reveal)")
-      .attr("fill", "url(#flow-greenland)")
-      .attr("opacity", 0.7)
-      .attr("d", areaBuilder);
+      svgElement
+        .append("path")
+        .datum(greenland)
+        .attr("clip-path", "url(#clip-reveal)")
+        .attr("fill", "url(#flow-greenland)")
+        .attr("opacity", 0.7)
+        .attr("d", areaBuilder);
 
-    // Add custom "0 point" circle + label
-    svgElement
-      .append("circle")
-      .attr("cx", xScale(2002))
-      .attr("cy", yScale(0))
-      .attr("fill", "#1D1D1D")
-      .attr("r", 0)
-      .transition()
-      .delay(5000)
-      .attr("r", 5);
+      // Add custom "0 point" circle + label
+      svgElement
+        .append("circle")
+        .attr("cx", xScale(2002))
+        .attr("cy", yScale(0))
+        .attr("fill", "#1D1D1D")
+        .attr("r", 0)
+        .transition()
+        .delay(5000)
+        .attr("r", 5);
 
-    svgElement
-      .append("text")
-      .attr("x", xScale(2002) + 10)
-      .attr("y", yScale(0) - 10)
-      .attr("fill", "#1D1D1D")
-      .style("font-size", "0.85rem")
-      .style("font-family", "monospace")
-      .text("")
-      .transition()
-      .delay(5000)
-      .text("0 billion tons in 2002");
+      svgElement
+        .append("text")
+        .attr("x", xScale(2002) + 10)
+        .attr("y", yScale(0) - 10)
+        .attr("fill", "#1D1D1D")
+        .style("font-size", "0.85rem")
+        .style("font-family", "monospace")
+        .text("")
+        .transition()
+        .delay(5000)
+        .text("0 billion tons in 2002");
 
-    // Add custom "0 point" circle + label
-    svgElement
-      .append("circle")
-      .attr("cx", xScale(2020))
-      .attr("cy", yScale(-5000))
-      .attr("fill", "#1D1D1D")
-      .attr("r", 0)
-      .transition()
-      .delay(5000)
-      .attr("r", 5);
+      // Add custom "0 point" circle + label
+      svgElement
+        .append("circle")
+        .attr("cx", xScale(2020))
+        .attr("cy", yScale(-5000))
+        .attr("fill", "#1D1D1D")
+        .attr("r", 0)
+        .transition()
+        .delay(5000)
+        .attr("r", 5);
 
-    svgElement
-      .append("text")
-      .attr("x", xScale(2020) - 200)
-      .attr("y", yScale(-5000) + 20)
-      .attr("fill", "#1D1D1D")
-      .style("font-size", "0.85rem")
-      .style("font-family", "monospace")
-      .text("")
-      .transition()
-      .delay(5000)
-      .text("-5000 billion tons in 2020");
+      svgElement
+        .append("text")
+        .attr("x", xScale(2020) - 200)
+        .attr("y", yScale(-5000) + 20)
+        .attr("fill", "#1D1D1D")
+        .style("font-size", "0.85rem")
+        .style("font-family", "monospace")
+        .text("")
+        .transition()
+        .delay(5000)
+        .text("-5000 billion tons in 2020");
 
-    const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d")).ticks(10);
+      const xAxis = d3.axisBottom(xScale).tickFormat(d3.format("d")).ticks(10);
 
-    svgElement
-      .append("g")
-      .attr("transform", `translate(0,${boundsHeight})`)
-      .call(xAxis)
-      .selectAll("text")
-      .style("font-size", "0.75rem")
-      .style("font-family", "monospace")
-      .style("fill", "#94a3b8");
+      svgElement
+        .append("g")
+        .attr("transform", `translate(0,${boundsHeight})`)
+        .call(xAxis)
+        .selectAll("text")
+        .style("font-size", "0.75rem")
+        .style("font-family", "monospace")
+        .style("fill", "#94a3b8");
 
-    svgElement.selectAll(".domain").attr("stroke", "#cbd5e1");
-    svgElement.selectAll(".tick line").attr("stroke", "none");
-  };
+      svgElement.selectAll(".domain").attr("stroke", "#cbd5e1");
+      svgElement.selectAll(".tick line").attr("stroke", "none");
+    };
+    createViz();
+  }, [boundsHeight, isInView]);
 
   return (
     <div ref={containerRef} className="pt-10">

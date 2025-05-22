@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as d3 from "d3";
 import { useDimensions } from "@/utils/useDimensions";
 import { useInView } from "@/lib/useInView";
@@ -103,7 +109,7 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
       .scaleLinear()
       .domain([yMin ?? 0, 1])
       .range([boundsHeight, 0]);
-  }, [data, boundsHeight]);
+  }, [data, boundsHeight, yMin]);
 
   // X axis (years)
   const xScale = useMemo(() => {
@@ -120,11 +126,6 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
     .range(["#78C7D6", "#f1faee", "#F84545"])
     .interpolate(d3.interpolateRgb);
 
-  useEffect(() => {
-    if (!isInView) return;
-    createViz();
-  }, [xScale, yScale, boundsHeight, isInView]);
-
   const lineData = grouped.map((d) => ({
     x: d.year,
     y: d.mean,
@@ -135,142 +136,146 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
     .y((d) => yScale(d.y))
     .curve(d3.curveMonotoneX);
 
-  const createViz = () => {
-    const svgElement = d3.select(chartRef.current);
-    svgElement.selectAll("*").remove();
-    const allYears = xScale.domain();
-    const filteredYears = allYears.filter((_, i) => i % 10 === 0);
-    const xAxis = d3.axisBottom(xScale).tickValues(filteredYears);
-    const yAxis = d3.axisRight(yScale).ticks(6);
-    svgElement
-      .append("g")
-      .attr("transform", "translate(0," + boundsHeight + ")")
-      .call(xAxis)
-      .call((g) => g.select(".domain").attr("stroke", "#fff"));
+  useEffect(() => {
+    if (!isInView) return;
+    const createViz = () => {
+      const svgElement = d3.select(chartRef.current);
+      svgElement.selectAll("*").remove();
+      const allYears = xScale.domain();
+      const filteredYears = allYears.filter((_, i) => i % 10 === 0);
+      const xAxis = d3.axisBottom(xScale).tickValues(filteredYears);
+      const yAxis = d3.axisRight(yScale).ticks(6);
+      svgElement
+        .append("g")
+        .attr("transform", "translate(0," + boundsHeight + ")")
+        .call(xAxis)
+        .call((g) => g.select(".domain").attr("stroke", "#fff"));
 
-    svgElement
-      .append("g")
-      .attr("transform", `translate(${boundsWidth},0)`)
-      .call(yAxis)
-      .call((g) => {
-        g.select(".domain").attr("stroke", "#ccc");
-        g.selectAll(".tick line")
-          .attr("stroke", "#ddd")
-          .attr("x2", -boundsWidth)
-          .attr("stroke-dasharray", "2,2");
+      svgElement
+        .append("g")
+        .attr("transform", `translate(${boundsWidth},0)`)
+        .call(yAxis)
+        .call((g) => {
+          g.select(".domain").attr("stroke", "#ccc");
+          g.selectAll(".tick line")
+            .attr("stroke", "#ddd")
+            .attr("x2", -boundsWidth)
+            .attr("stroke-dasharray", "2,2");
 
-        g.selectAll(".tick text")
-          .attr("font-size", "12px")
-          .attr("fill", "#666")
-          .attr("dx", -5);
-      });
-
-    svgElement
-      .selectAll("rect")
-      .data(grouped)
-      .enter()
-      .append("rect")
-      .on("mouseover", (event, d) => {
-        const [x, y] = d3.pointer(event);
-        setTooltipData({
-          x: x,
-          y: y,
-          year: d.year,
-          min: d.min,
-          max: d.max,
-          mean: d.mean,
+          g.selectAll(".tick text")
+            .attr("font-size", "12px")
+            .attr("fill", "#666")
+            .attr("dx", -5);
         });
-      })
-      .on("mouseleave", () => {
-        setTooltipData(null);
-      })
-      .attr("x", (d) => xScale(d.year.toString())!)
-      .attr("width", xScale.bandwidth())
-      .attr("y", (d) => yScale(d.min))
-      .attr("height", 0)
-      .attr("fill", (d) => colorScale(d.mean))
-      .transition()
-      .delay((_, i) => i * 30) // Delay per bar
-      .duration(500)
-      .ease(d3.easeCubicOut)
-      .attr("y", (d) => yScale(d.max))
-      .attr("height", (d) => yScale(d.min) - yScale(d.max));
 
-    const path = svgElement
-      .append("path")
-      .datum(lineData)
-      .attr("fill", "none")
-      .attr("stroke", "#333")
-      .attr("stroke-width", 2)
-      .attr("d", linePath);
+      svgElement
+        .selectAll("rect")
+        .data(grouped)
+        .enter()
+        .append("rect")
+        .on("mouseover", (event, d) => {
+          const [x, y] = d3.pointer(event);
+          setTooltipData({
+            x: x,
+            y: y,
+            year: d.year,
+            min: d.min,
+            max: d.max,
+            mean: d.mean,
+          });
+        })
+        .on("mouseleave", () => {
+          setTooltipData(null);
+        })
+        .attr("x", (d) => xScale(d.year.toString())!)
+        .attr("width", xScale.bandwidth())
+        .attr("y", (d) => yScale(d.min))
+        .attr("height", 0)
+        .attr("fill", (d) => colorScale(d.mean))
+        .transition()
+        .delay((_, i) => i * 30) // Delay per bar
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .attr("y", (d) => yScale(d.max))
+        .attr("height", (d) => yScale(d.min) - yScale(d.max));
 
-    const totalLength = path.node()?.getTotalLength() ?? 0;
+      const path = svgElement
+        .append("path")
+        .datum(lineData)
+        .attr("fill", "none")
+        .attr("stroke", "#333")
+        .attr("stroke-width", 2)
+        .attr("d", linePath);
 
-    path
-      .attr("stroke-dasharray", `${totalLength} ${totalLength}`)
-      .attr("stroke-dashoffset", totalLength)
-      .transition()
-      .duration(3000)
-      .ease(d3.easeLinear)
-      .attr("stroke-dashoffset", 0);
+      const totalLength = path.node()?.getTotalLength() ?? 0;
 
-    // EXPLAINING THE RECTANGLE
-    svgElement
-      .append("rect")
-      .attr("x", xScale("2020")!)
-      .attr("width", xScale.bandwidth())
-      .attr("y", yScale(-0.5))
-      .attr("height", 160)
-      .attr("fill", "#78C7D6");
+      path
+        .attr("stroke-dasharray", `${totalLength} ${totalLength}`)
+        .attr("stroke-dashoffset", totalLength)
+        .transition()
+        .duration(3000)
+        .ease(d3.easeLinear)
+        .attr("stroke-dashoffset", 0);
 
-    // Top dashed line
-    svgElement
-      .append("line")
-      .attr("x1", xScale("2020")!)
-      .attr("x2", xScale("2020")! + xScale.bandwidth())
-      .attr("y1", yScale(-0.5))
-      .attr("y2", yScale(-0.5))
-      .attr("stroke", "black")
-      .attr("stroke-width", 3);
+      // EXPLAINING THE RECTANGLE
+      svgElement
+        .append("rect")
+        .attr("x", xScale("2020")!)
+        .attr("width", xScale.bandwidth())
+        .attr("y", yScale(-0.5))
+        .attr("height", 160)
+        .attr("fill", "#78C7D6");
 
-    // Bottom dashed line
-    svgElement
-      .append("line")
-      .attr("x1", xScale("2020")!)
-      .attr("x2", xScale("2020")! + xScale.bandwidth())
-      .attr("y1", yScale(-0.5) + 160)
-      .attr("y2", yScale(-0.5) + 160)
-      .attr("stroke", "black")
-      .attr("stroke-width", 3);
+      // Top dashed line
+      svgElement
+        .append("line")
+        .attr("x1", xScale("2020")!)
+        .attr("x2", xScale("2020")! + xScale.bandwidth())
+        .attr("y1", yScale(-0.5))
+        .attr("y2", yScale(-0.5))
+        .attr("stroke", "black")
+        .attr("stroke-width", 3);
 
-    const foreign = svgElement
-      .append("foreignObject")
-      .attr("x", xScale("2020")! - 200)
-      .attr("y", yScale(-0.5) - 10)
-      .attr("width", 200)
-      .attr("height", 200);
+      // Bottom dashed line
+      svgElement
+        .append("line")
+        .attr("x1", xScale("2020")!)
+        .attr("x2", xScale("2020")! + xScale.bandwidth())
+        .attr("y1", yScale(-0.5) + 160)
+        .attr("y2", yScale(-0.5) + 160)
+        .attr("stroke", "black")
+        .attr("stroke-width", 3);
 
-    foreign
-      .append("xhtml:div")
-      .style("font-family", "monospace")
-      .style("font-size", "14px")
-      .style("fill", "#333")
-      .text("month that was warmest compared to average");
+      const foreign = svgElement
+        .append("foreignObject")
+        .attr("x", xScale("2020")! - 200)
+        .attr("y", yScale(-0.5) - 10)
+        .attr("width", 200)
+        .attr("height", 200);
 
-    const foreign2 = svgElement
-      .append("foreignObject")
-      .attr("x", xScale("2020")! - 200)
-      .attr("y", yScale(-0.5) + 160)
-      .attr("width", 200)
-      .attr("height", 200);
+      foreign
+        .append("xhtml:div")
+        .style("font-family", "monospace")
+        .style("font-size", "14px")
+        .style("fill", "#333")
+        .text("month that was warmest compared to average");
 
-    foreign2
-      .append("xhtml:div")
-      .style("font-family", "monospace")
-      .style("font-size", "14px")
-      .style("fill", "#333")
-      .text("month that was coldest compared to average");
-  };
+      const foreign2 = svgElement
+        .append("foreignObject")
+        .attr("x", xScale("2020")! - 200)
+        .attr("y", yScale(-0.5) + 160)
+        .attr("width", 200)
+        .attr("height", 200);
+
+      foreign2
+        .append("xhtml:div")
+        .style("font-family", "monospace")
+        .style("font-size", "14px")
+        .style("fill", "#333")
+        .text("month that was coldest compared to average");
+    };
+    createViz();
+  }, [xScale, yScale, boundsHeight, isInView]);
 
   return (
     <div ref={containerRef}>
@@ -318,11 +323,11 @@ const Description = () => {
         The bars grow taller, shift into warmer colors, and rise increasingly
         above the zero line. This marks a clear and consistent trend toward{" "}
         <strong>positive temperature anomalies</strong> — months and years that
-        are warmer than what we've seen historically.
+        are warmer than what we&#39;ve seen historically.
         <br />
-        This shift isn't subtle. It's abrupt and sustained, illustrating how
-        climate change is not just a future projection — it's a transformation
-        already embedded in the last two decades of data.
+        This shift isn&#39;t subtle. It&#39;s abrupt and sustained, illustrating
+        how climate change is not just a future projection — it&#39;s a
+        transformation already embedded in the last two decades of data.
       </p>
     </div>
   );

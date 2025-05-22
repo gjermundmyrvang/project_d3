@@ -108,119 +108,118 @@ export const ClusterComponent = ({
   }, [filtered]);
 
   useEffect(() => {
+    const createViz = () => {
+      const g = d3.select(chartRef.current);
+      g.selectAll("*").remove();
+
+      const hierarchy = d3
+        .hierarchy(nestedData)
+        .sum((d) => d.value)
+        .sort((a, b) => b.value! - a.value!);
+
+      const packGenerator = d3
+        .pack<Tree>()
+        .size([
+          width - MARGIN.left - MARGIN.right,
+          height - MARGIN.top - MARGIN.bottom,
+        ])
+        .padding(4);
+
+      const root = packGenerator(hierarchy);
+      const level1 = root.descendants().filter((d) => d.depth === 1);
+
+      const firstLevelGroups = level1.map((d) => d.data.country);
+
+      const colorScale = d3
+        .scaleOrdinal<string>()
+        .domain(firstLevelGroups)
+        .range(COLORS);
+
+      const bigBoyz = g
+        .selectAll("g.level1")
+        .data(level1)
+        .enter()
+        .append("g")
+        .attr("class", "level1");
+
+      bigBoyz
+        .append("circle")
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", 0)
+        .attr("fill", (d) => colorScale(d.data.country))
+        .attr("stroke", (d) => colorScale(d.data.country))
+        .attr("stroke-opacity", 0.3)
+        .attr("fill-opacity", 0.1)
+        .transition()
+        .duration(1200)
+        .ease(d3.easeCubicOut)
+        .attr("r", (d) => d.r);
+
+      bigBoyz
+        .append("text")
+        .attr("x", (d) => d.x)
+        .attr("y", (d) => d.y - d.r - 6)
+        .attr("text-anchor", "start")
+        .attr("alignment-baseline", "middle")
+        .attr("fill", "#fafafa")
+        .style("font-family", "monospace")
+        .style("font-size", "12px")
+        .style("font-weight", "bold")
+        .style("opacity", 0)
+        .text((d) => `${d.data.country} - ${d.data.value.toFixed(2)} %`)
+        .transition()
+        .duration(2200)
+        .style("opacity", 1);
+
+      // Leaf nodes
+      const leaves = root.leaves();
+
+      const leafGroups = g
+        .selectAll("g.leaf")
+        .data(leaves)
+        .enter()
+        .append("g")
+        .attr("class", "leaf");
+
+      leafGroups
+        .append("circle")
+        .attr("cx", (d) => d.x)
+        .attr("cy", (d) => d.y)
+        .attr("r", 0)
+        .attr("stroke", (d) => colorScale(d.parent?.data.country || ""))
+        .attr("fill", (d) => colorScale(d.parent?.data.country || ""))
+        .attr("fill-opacity", 0.2)
+        .on("mouseover", (event, hovered) => {
+          const [x, y] = d3.pointer(event);
+          const data = hovered.data;
+          setTooltip({ x, y, data });
+        })
+        .on("mouseleave", () => setTooltip(null))
+        .transition()
+        .duration(2000)
+        .ease(d3.easeCubicOut)
+        .attr("r", (d) => d.r);
+
+      leafGroups
+        .filter((d) => d.r > 12)
+        .append("text")
+        .attr("x", (d) => d.x)
+        .attr("y", (d) => d.y)
+        .attr("fill", "#fafafa")
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "middle")
+        .style("font-size", "10px")
+        .style("font-family", "monospace")
+        .style("pointer-events", "none")
+        .text((d) => d.data.code)
+        .style("opacity", 0)
+        .transition()
+        .duration(2200)
+        .style("opacity", 1);
+    };
     createViz();
   }, [nestedData]);
-
-  const createViz = () => {
-    const g = d3.select(chartRef.current);
-    g.selectAll("*").remove();
-
-    const hierarchy = d3
-      .hierarchy(nestedData)
-      .sum((d) => d.value)
-      .sort((a, b) => b.value! - a.value!);
-
-    const packGenerator = d3
-      .pack<Tree>()
-      .size([
-        width - MARGIN.left - MARGIN.right,
-        height - MARGIN.top - MARGIN.bottom,
-      ])
-      .padding(4);
-
-    const root = packGenerator(hierarchy);
-    const level1 = root.descendants().filter((d) => d.depth === 1);
-
-    const firstLevelGroups = level1.map((d) => d.data.country);
-
-    const colorScale = d3
-      .scaleOrdinal<string>()
-      .domain(firstLevelGroups)
-      .range(COLORS);
-
-    const bigBoyz = g
-      .selectAll("g.level1")
-      .data(level1)
-      .enter()
-      .append("g")
-      .attr("class", "level1");
-
-    bigBoyz
-      .append("circle")
-      .attr("cx", (d) => d.x)
-      .attr("cy", (d) => d.y)
-      .attr("r", 0)
-      .attr("fill", (d) => colorScale(d.data.country))
-      .attr("stroke", (d) => colorScale(d.data.country))
-      .attr("stroke-opacity", 0.3)
-      .attr("fill-opacity", 0.1)
-      .transition()
-      .duration(1200)
-      .ease(d3.easeCubicOut)
-      .attr("r", (d) => d.r);
-
-    bigBoyz
-      .append("text")
-      .attr("x", (d) => d.x)
-      .attr("y", (d) => d.y - d.r - 6)
-      .attr("text-anchor", "start")
-      .attr("alignment-baseline", "middle")
-      .attr("fill", "#fafafa")
-      .style("font-family", "monospace")
-      .style("font-size", "12px")
-      .style("font-weight", "bold")
-      .style("opacity", 0)
-      .text((d) => `${d.data.country} - ${d.data.value.toFixed(2)} %`)
-      .transition()
-      .duration(2200)
-      .style("opacity", 1);
-
-    // Leaf nodes
-    const leaves = root.leaves();
-
-    const leafGroups = g
-      .selectAll("g.leaf")
-      .data(leaves)
-      .enter()
-      .append("g")
-      .attr("class", "leaf");
-
-    leafGroups
-      .append("circle")
-      .attr("cx", (d) => d.x)
-      .attr("cy", (d) => d.y)
-      .attr("r", 0)
-      .attr("stroke", (d) => colorScale(d.parent?.data.country || ""))
-      .attr("fill", (d) => colorScale(d.parent?.data.country || ""))
-      .attr("fill-opacity", 0.2)
-      .on("mouseover", (event, hovered) => {
-        const [x, y] = d3.pointer(event);
-        const data = hovered.data;
-        setTooltip({ x, y, data });
-      })
-      .on("mouseleave", () => setTooltip(null))
-      .transition()
-      .duration(2000)
-      .ease(d3.easeCubicOut)
-      .attr("r", (d) => d.r);
-
-    leafGroups
-      .filter((d) => d.r > 12)
-      .append("text")
-      .attr("x", (d) => d.x)
-      .attr("y", (d) => d.y)
-      .attr("fill", "#fafafa")
-      .attr("text-anchor", "middle")
-      .attr("alignment-baseline", "middle")
-      .style("font-size", "10px")
-      .style("font-family", "monospace")
-      .style("pointer-events", "none")
-      .text((d) => d.data.code)
-      .style("opacity", 0)
-      .transition()
-      .duration(2200)
-      .style("opacity", 1);
-  };
 
   return (
     <div className="relative pt-28">

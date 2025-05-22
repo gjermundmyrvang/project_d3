@@ -206,55 +206,55 @@ const CO2BarChart = ({ width, height, data }: CO2VizProps) => {
     .interpolate(d3.interpolateRgb);
 
   useEffect(() => {
+    const createViz = () => {
+      const svgElement = d3.select(chartRef.current);
+      svgElement.selectAll("*").remove();
+      const allYears = xScale.domain();
+      const filteredYears = allYears.filter((_, i) => i % 10 === 0);
+      const xAxis = d3.axisBottom(xScale).tickValues(filteredYears);
+      const yAxis = d3.axisLeft(yScale).ticks(6);
+      svgElement
+        .append("g")
+        .attr("transform", "translate(0," + boundsHeight + ")")
+        .call(xAxis)
+        .call((g) => g.select(".domain").attr("stroke", "#ccc"));
+
+      svgElement
+        .append("g")
+        .call(yAxis)
+        .call((g) => {
+          g.select(".domain").attr("stroke", "#ccc");
+          g.selectAll(".tick line")
+            .attr("stroke", "#ddd")
+            .attr("x2", -boundsWidth)
+            .attr("stroke-dasharray", "2,2");
+
+          g.selectAll(".tick text")
+            .attr("font-size", "12px")
+            .attr("fill", "#666")
+            .attr("dx", -5);
+        });
+
+      svgElement
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => xScale(d.year.toString())!)
+        .attr("width", xScale.bandwidth())
+        .attr("y", yScale(290))
+        .attr("height", 0)
+        .attr("fill", (d) => colorScale(d.ppm))
+        .transition()
+        .delay((_, i) => i * 30) // Delay per bar
+        .duration(500)
+        .ease(d3.easeCubicOut)
+        .attr("y", (d) => yScale(d.ppm))
+        .attr("height", (d) => boundsHeight - yScale(d.ppm));
+    };
     createViz();
   }, []);
 
-  const createViz = () => {
-    const svgElement = d3.select(chartRef.current);
-    svgElement.selectAll("*").remove();
-    const allYears = xScale.domain();
-    const filteredYears = allYears.filter((_, i) => i % 10 === 0);
-    const xAxis = d3.axisBottom(xScale).tickValues(filteredYears);
-    const yAxis = d3.axisLeft(yScale).ticks(6);
-    svgElement
-      .append("g")
-      .attr("transform", "translate(0," + boundsHeight + ")")
-      .call(xAxis)
-      .call((g) => g.select(".domain").attr("stroke", "#ccc"));
-
-    svgElement
-      .append("g")
-      .call(yAxis)
-      .call((g) => {
-        g.select(".domain").attr("stroke", "#ccc");
-        g.selectAll(".tick line")
-          .attr("stroke", "#ddd")
-          .attr("x2", -boundsWidth)
-          .attr("stroke-dasharray", "2,2");
-
-        g.selectAll(".tick text")
-          .attr("font-size", "12px")
-          .attr("fill", "#666")
-          .attr("dx", -5);
-      });
-
-    svgElement
-      .selectAll("rect")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("x", (d) => xScale(d.year.toString())!)
-      .attr("width", xScale.bandwidth())
-      .attr("y", yScale(290))
-      .attr("height", 0)
-      .attr("fill", (d) => colorScale(d.ppm))
-      .transition()
-      .delay((_, i) => i * 30) // Delay per bar
-      .duration(500)
-      .ease(d3.easeCubicOut)
-      .attr("y", (d) => yScale(d.ppm))
-      .attr("height", (d) => boundsHeight - yScale(d.ppm));
-  };
   return (
     <div>
       <svg width={width} height={height}>
