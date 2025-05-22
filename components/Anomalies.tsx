@@ -213,6 +213,63 @@ const Anomalies = ({ width, height, data, grouped }: AnomalyProps) => {
       .duration(3000)
       .ease(d3.easeLinear)
       .attr("stroke-dashoffset", 0);
+
+    // EXPLAINING THE RECTANGLE
+    svgElement
+      .append("rect")
+      .attr("x", xScale("2020")!)
+      .attr("width", xScale.bandwidth())
+      .attr("y", yScale(-0.5))
+      .attr("height", 160)
+      .attr("fill", "#78C7D6");
+
+    // Top dashed line
+    svgElement
+      .append("line")
+      .attr("x1", xScale("2020")!)
+      .attr("x2", xScale("2020")! + xScale.bandwidth())
+      .attr("y1", yScale(-0.5))
+      .attr("y2", yScale(-0.5))
+      .attr("stroke", "black")
+      .attr("stroke-width", 3);
+
+    // Bottom dashed line
+    svgElement
+      .append("line")
+      .attr("x1", xScale("2020")!)
+      .attr("x2", xScale("2020")! + xScale.bandwidth())
+      .attr("y1", yScale(-0.5) + 160)
+      .attr("y2", yScale(-0.5) + 160)
+      .attr("stroke", "black")
+      .attr("stroke-width", 3);
+
+    const foreign = svgElement
+      .append("foreignObject")
+      .attr("x", xScale("2020")! - 200)
+      .attr("y", yScale(-0.5) - 10)
+      .attr("width", 200)
+      .attr("height", 200);
+
+    foreign
+      .append("xhtml:div")
+      .style("font-family", "monospace")
+      .style("font-size", "14px")
+      .style("fill", "#333")
+      .text("month that was warmest compared to average");
+
+    const foreign2 = svgElement
+      .append("foreignObject")
+      .attr("x", xScale("2020")! - 200)
+      .attr("y", yScale(-0.5) + 160)
+      .attr("width", 200)
+      .attr("height", 200);
+
+    foreign2
+      .append("xhtml:div")
+      .style("font-family", "monospace")
+      .style("font-size", "14px")
+      .style("fill", "#333")
+      .text("month that was coldest compared to average");
   };
 
   return (
