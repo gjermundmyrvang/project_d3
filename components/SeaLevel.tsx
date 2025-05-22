@@ -378,7 +378,7 @@ const Cursor = ({ x, y, data }: CursorProps) => {
             <br />
             <p>Mean: {data.mean.toFixed(2)} mm</p>
             <p>Min: {data.min.toFixed(2)} mm</p>
-            <p>Min: {data.max.toFixed(2)} mm</p>
+            <p>Max: {data.max.toFixed(2)} mm</p>
           </div>
         </foreignObject>
       )}
