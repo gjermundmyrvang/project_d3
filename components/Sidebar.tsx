@@ -38,7 +38,7 @@ export const Sidebar = () => {
   return (
     <aside className="w-48 fixed top-0 left-0 h-full bg-gray-800 p-2 shadow z-50">
       <ul className="space-y-2">
-        {sections.map((s) => (
+        {sections.map((s, i) => (
           <li key={s.id}>
             <a
               href={`#${s.id}`}

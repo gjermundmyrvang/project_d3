@@ -36,7 +36,7 @@ export const CO2Component = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl justify-center items-center mx-auto m-6 pb-10">
+    <div className="w-full max-w-7xl justify-center items-center mx-auto  pb-10">
       <div className="w-full min-h-[60rem] relative" ref={vizRef}>
         {data && (
           <>
@@ -64,7 +64,7 @@ type CO2VizProps = {
 };
 
 const MIN_R = 10;
-const MAX_R = 20;
+const MAX_R = 30;
 
 const CO2Viz = ({
   width,
@@ -172,7 +172,8 @@ const CO2Viz = ({
   };
 
   return (
-    <div className="w-full pt-8">
+    <div className="w-full">
+      <Description />
       <svg
         ref={svgRef}
         width={width}
