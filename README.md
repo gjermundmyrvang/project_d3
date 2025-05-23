@@ -4,10 +4,7 @@ This project is a step-by-step climate data storytelling website built with **Ne
 
 ## Requirements
 
-Before you begin, make sure you have the following installed:
-
 - [Node.js](https://nodejs.org/) (LTS version recommended)
-- [Git](https://git-scm.com/)
 - A terminal (e.g., Terminal, Git Bash, or VS Code integrated terminal)
 
 ## Getting Started
@@ -16,9 +13,11 @@ Follow these steps to run the project locally on your machine.
 
 ### 1. Clone the Repository
 
+From terminal:
 ```bash
 git clone https://github.com/gjermundmyrvang/project_d3.git
 ```
+or just download the project as a zip folder from github
 
 ### 2. Navigate into the Project Folder
 ```bash
@@ -27,16 +26,17 @@ cd project_d3
 
 ### 3. Install Dependencies
 ```bash
-npm install
+pnpm install
 ```
 
 ### 4. Start the Development Server
 ```bash
-npm run dev
+pnpm run dev
 ```
 Once the server is running, open your browser and visit:
 - http://localhost:3000
 
+---
 
 ## **Sources**
 
