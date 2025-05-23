@@ -21,14 +21,14 @@ export default function Home() {
             <AnomalyComponent />
           </Sticky>
         </section>
-        <section id="co2">
-          <Sticky margin={150} bg="bg-blue-200">
-            <CO2Component />
-          </Sticky>
-        </section>
         <section id="map">
           <Sticky margin={150} bg="bg-black">
             <ContributionMap />
+          </Sticky>
+        </section>
+        <section id="co2">
+          <Sticky margin={150} bg="bg-blue-200">
+            <CO2Component />
           </Sticky>
         </section>
         <section id="river">
