@@ -63,72 +63,88 @@ type CO2VizProps = {
   data: DataProps[];
 };
 
-const MIN_R = 15;
+const MIN_R = 10;
 const MAX_R = 20;
 
-const CO2Viz = ({ width, height, data }: CO2VizProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+const CO2Viz = ({
+  width,
+  height,
+  data,
+}: {
+  width: number;
+  height: number;
+  data: DataProps[];
+}) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const boundsWidth = width - MARGIN.left - MARGIN.right;
-  const boundsHeight = height / 2;
-  const randomRadius = d3.randomUniform(MIN_R, MAX_R);
-
+  const boundsHeight = height / 2 - MARGIN.top;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [particles, setParticles] = useState<any[]>([]);
+  const particles = useRef<any[]>([]);
+  const frameRef = useRef<number | null>(null);
+
+  const generateParticles = (num: number) => {
+    return d3.range(num).map(() => ({
+      x: Math.random() * boundsWidth,
+      y: Math.random() * boundsHeight,
+      r: d3.randomUniform(MIN_R, MAX_R)(),
+      dx: (Math.random() - 0.5) * 0.6,
+      dy: (Math.random() - 0.5) * 0.6,
+    }));
+  };
+
+  const updatePositions = () => {
+    for (let p of particles.current) {
+      p.x += p.dx;
+      p.y += p.dy;
+
+      if (p.x < 0 || p.x > boundsWidth) p.dx *= -1;
+      if (p.y < 0 || p.y > boundsHeight) p.dy *= -1;
+    }
+  };
+
+  const renderParticles = () => {
+    const svg = d3.select(svgRef.current);
+    const group = svg.select("g.particles");
+
+    const join = group.selectAll("circle").data(particles.current);
+
+    join
+      .join(
+        (enter) =>
+          enter
+            .append("circle")
+            .attr("r", (d) => d.r)
+            .attr("fill", (d) =>
+              d3.interpolateGreys(0.7 + ((d.r - MIN_R) / (MAX_R - MIN_R)) * 0.3)
+            ),
+        (update) => update,
+        (exit) => exit.remove()
+      )
+      .attr("cx", (d) => d.x)
+      .attr("cy", (d) => d.y);
+  };
+
+  const tick = () => {
+    updatePositions();
+    renderParticles();
+    frameRef.current = requestAnimationFrame(tick);
+  };
 
   useEffect(() => {
-    const generateParticles = (num: number) => {
-      const newParticles = d3.range(num).map(() => ({
-        x: Math.random() * boundsWidth,
-        y: Math.random() * boundsHeight,
-        r: randomRadius(),
-        dx: (Math.random() - 0.5) * 0.4,
-        dy: (Math.random() - 0.5) * 0.4,
-      }));
-      return newParticles;
-    };
-    setParticles(generateParticles(data[0].ppm));
-  }, []);
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
 
-  useEffect(() => {
-    const ctx = canvasRef.current?.getContext("2d");
-    if (!ctx || !data.length) return;
+    svg
+      .append("g")
+      .attr("class", "particles")
+      .attr("transform", `translate(${MARGIN.left}, ${MARGIN.top})`);
 
-    let frame: number;
-    let running = true;
-
-    const draw = () => {
-      if (!running || !ctx) return;
-
-      ctx.clearRect(0, 0, width, height);
-
-      const SPEED_MULTIPLIER = 2;
-      particles.forEach((p) => {
-        p.x += p.dx * SPEED_MULTIPLIER;
-        p.y += p.dy * SPEED_MULTIPLIER;
-
-        if (p.x < 0 || p.x > boundsWidth) p.dx *= -2;
-        if (p.y < 0 || p.y > boundsHeight) p.dy *= -2;
-      });
-
-      particles.forEach((p) => {
-        const t = (p.r - MIN_R) / (MAX_R - MIN_R); // normalize 0–1
-        const tLimited = 0.6 + t * 0.3;
-        ctx.fillStyle = d3.interpolateGreys(tLimited);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      frame = requestAnimationFrame(draw);
-    };
-
-    draw();
+    frameRef.current = requestAnimationFrame(tick);
 
     return () => {
-      running = false;
-      cancelAnimationFrame(frame);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
-  }, [particles, width, height, boundsHeight, boundsWidth, data.length]);
+  }, []);
 
   const startAnimation = () => {
     let yearIndex = 0;
@@ -136,44 +152,31 @@ const CO2Viz = ({ width, height, data }: CO2VizProps) => {
     const step = () => {
       if (yearIndex >= data.length) return;
 
-      const current = data[yearIndex];
-      const nextParticleCount = Math.floor(current.ppm);
+      const targetCount = Math.floor(data[yearIndex].ppm);
+      const currentCount = particles.current.length;
 
-      setParticles((prev) => {
-        const currentCount = prev.length;
-        const countToAdd = nextParticleCount - currentCount;
-        const newParticles = generateParticles(countToAdd);
-        return [...prev, ...newParticles];
-      });
+      if (targetCount > currentCount) {
+        const newParticles = generateParticles(targetCount - currentCount);
+        particles.current = [...particles.current, ...newParticles];
+      } else if (targetCount < currentCount) {
+        particles.current = particles.current.slice(0, targetCount);
+      }
 
       setCurrentIndex(yearIndex);
       yearIndex++;
 
-      setTimeout(step, 200);
+      setTimeout(step, 250);
     };
 
     step();
   };
 
-  const generateParticles = (num: number) => {
-    const newParticles = d3.range(num).map(() => ({
-      x: Math.random() * boundsWidth,
-      y: Math.random() * boundsHeight,
-      r: randomRadius(),
-      dx: (Math.random() - 0.5) * 0.4,
-      dy: (Math.random() - 0.5) * 0.4,
-    }));
-    return newParticles;
-  };
-
   return (
-    <div className="w-full">
-      <Description />
-      <canvas
-        ref={canvasRef}
+    <div className="w-full pt-8">
+      <svg
+        ref={svgRef}
         width={width}
         height={height / 2}
-        style={{ display: "block", marginTop: 10 }}
         className="rounded-lg backdrop-blur-md bg-white/20 border border-white/20"
       />
       <YearsComponent
@@ -182,9 +185,7 @@ const CO2Viz = ({ width, height, data }: CO2VizProps) => {
         setCurrent={(newCurrent) => {
           const index = data.findIndex((d) => d.year === newCurrent.year);
           setCurrentIndex(index);
-          const particleCount = Math.floor(newCurrent.ppm);
-          const newParticles = generateParticles(particleCount);
-          setParticles(newParticles);
+          particles.current = generateParticles(Math.floor(newCurrent.ppm));
         }}
         playAnimation={startAnimation}
       />
